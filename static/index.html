@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>The Infinite Computer: Genesis v2.3</title>
+    <script src="https://cdn.jsdelivr.net/npm/break_eternity.js"></script>
+    <style>
+        :root { --neon: #00ff41; --bg: #050505; --white: #eee; --gray: #444; --panel-bg: #0a0a0a; }
+        body { background: var(--bg); color: var(--white); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+        .tab-nav { width: 900px; display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; background: #111; border: 1px solid #333; color: #888; padding: 10px; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; }
+        .tab-btn:hover { background: #1a1a1a; color: #ccc; }
+        .tab-btn.active { background: var(--panel-bg); border-color: var(--neon); color: var(--neon); box-shadow: 0 0 10px rgba(0, 255, 65, 0.1); }
+
+        .tab-content { display: none; width: 900px; }
+        .tab-content.active { display: flex; flex-direction: column; gap: 20px; }
+
+        .header { width: 900px; display: flex; justify-content: space-between; border-bottom: 2px solid #222; padding-bottom: 10px; margin-bottom: 20px; }
+        .bits-count { font-size: 28px; transition: 0.3s; }
+        .bits-count.affordable { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+
+        /* 패널 레이아웃 수정 */
+        .panel-container { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; width: 100%; }
+        .panel { border: 1px solid #333; padding: 20px; background: var(--panel-bg); border-radius: 8px; min-height: 450px; position: relative; }
+
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .help-btn { background: none; border: 1px solid #333; color: #666; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+        /* 회로 영역 (로그 위로 이동) */
+        #circuit-area {
+            width: 100%;
+            background: var(--panel-bg);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 200px;
+        }
+
+        #bulb-grid {
+            display: grid;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .bulb {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            transition: background 0.05s, box-shadow 0.05s;
+        }
+        .bulb.on {
+            background: #ffca28;
+            border-color: #ffca28;
+            box-shadow: 0 0 15px #ffca28, 0 0 5px #fff;
+            z-index: 10;
+        }
+
+        button.action-btn { background: #111; color: var(--white); border: 1px solid var(--gray); padding: 12px; cursor: pointer; width: 100%; margin-bottom: 12px; text-align: left; border-radius: 4px; position: relative; transition: 0.2s; }
+        button.action-btn:hover:not(:disabled) { border-color: var(--neon); background: #161616; transform: translateX(2px); }
+        button.action-btn.affordable { color: var(--neon); border-color: var(--neon); }
+        button.action-btn:disabled { opacity: 0.75; cursor: not-allowed; }
+
+        .rank-title { font-size: 16px; font-weight: bold; display: block; margin-bottom: 4px; }
+        .cost-text { font-size: 13px; color: #aaa; position: absolute; top: 12px; right: 12px; }
+        button.action-btn.affordable .cost-text { color: var(--neon); }
+        .effect-info { font-size: 11px; color: #888; margin-top: 4px; display: block; }
+
+        .milestones { border-top: 1px dashed #333; padding-top: 6px; margin-top: 8px; font-size: 11px; }
+        .ms-item { margin-bottom: 2px; }
+        .ms-active { color: var(--neon); font-weight: bold; }
+        .ms-future { color: #555; }
+
+        .log { height: 100px; overflow-y: hidden; border: 1px solid #222; margin-top: 20px; font-size: 12px; color: #666; width: 900px; padding: 10px; background: #000; box-sizing: border-box; }
+        .hidden { display: none !important; }
+
+        .stat-line { padding: 8px; border-bottom: 1px solid #222; font-size: 14px; }
+        .stat-label { color: var(--neon); font-weight: bold; margin-right: 10px; }
+
+        .setting-btn { background: #222; border: 1px solid #555; color: #eee; padding: 10px 20px; margin-bottom: 10px; cursor: pointer; width: 100%; text-align: left; }
+        .setting-btn:hover { background: #333; border-color: #888; }
+        .setting-group { margin-bottom: 20px; }
+        .setting-title { color: var(--neon); border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div id="bit-container" class="bits-count">Bits: <span id="bits">0</span></div>
+        <div style="text-align: right;">
+            [ SYSTEM ONLINE ]<br>
+            Cycle: <span id="cycle-speed">1000</span>ms
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <div class="tab-btn active" onclick="switchTab('main')">MAIN SYSTEM</div>
+        <div class="tab-btn" onclick="switchTab('stats')">CORE STATS</div>
+        <div class="tab-btn" onclick="switchTab('settings')">SETTINGS</div>
+    </div>
+
+    <div id="tab-main" class="tab-content active">
+        <div class="panel-container">
+            <div class="panel">
+                <div class="section-header">
+                    <h3 style="color: var(--neon); margin:0;">HARDWARE CONTROL</h3>
+                    <button class="help-btn" onclick="alert('전구는 매 사이클마다 50% 확률로 켜지며 정보를 생산합니다.')">?</button>
+                </div>
+
+                <div id="hw-controls">
+                    <button id="btn-rows" class="action-btn hidden" onclick="buyHW('rows')">
+                        <span class="rank-title">행 확장 (Add Row)</span>
+                        <span id="c-rows" class="cost-text">Cost: 5</span>
+                        <span id="eff-rows" class="effect-info">Rows: 1 -> 2 (Max 8)</span>
+                    </button>
+                    <button id="btn-speed" class="action-btn hidden" onclick="buyHW('speed')">
+                        <span class="rank-title">클럭 가속 (Overclock)</span>
+                        <span id="c-speed" class="cost-text">Cost: 10</span>
+                        <span id="eff-speed" class="effect-info">Delay: 1000ms -> 900ms</span>
+                    </button>
+                    <button id="btn-cols" class="action-btn hidden" onclick="buyHW('cols')">
+                        <span class="rank-title">열 확장 (Add Col)</span>
+                        <span id="c-cols" class="cost-text">Cost: 50</span>
+                        <span id="eff-cols" class="effect-info">Cols: 1 -> 2 (Max 8)</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="section-header">
+                    <h3 style="color: var(--neon); margin:0;">COGNITIVE STEPS</h3>
+                    <button class="help-btn" onclick="alert('상위 단계 진입 시 하위 단계 자원을 소모합니다.')">?</button>
+                </div>
+
+                <div id="rank-controls">
+                    <button id="btn-impulse" class="action-btn" onclick="rankUp('impulse')">
+                        <span class="rank-title">Impulse Lv.<span id="lv-impulse">0</span></span>
+                        <span id="c-impulse" class="cost-text">Cost: 5 Bits</span>
+                        <div id="ms-impulse" class="milestones"></div>
+                    </button>
+                    <button id="btn-intuition" class="action-btn hidden" onclick="rankUp('intuition')">
+                        <span class="rank-title">Intuition Lv.<span id="lv-intuition">0</span></span>
+                        <span id="c-intuition" class="cost-text">Req: Impulse Lv.4</span>
+                        <div id="ms-intuition" class="milestones"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="circuit-area">
+            <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">ACTIVE CIRCUIT MAP</h3>
+            <div id="bulb-grid" style="color: #444; font-size: 12px;">Initializing...</div>
+        </div>
+    </div>
+
+    <div id="tab-stats" class="tab-content container">
+        <div class="panel" style="grid-column: span 2;">
+            <div class="section-header">
+                <h3 style="color: var(--neon); margin:0;">ACTIVE EFFECTS LOG</h3>
+            </div>
+            <div id="stats-list"></div>
+        </div>
+    </div>
+
+    <div id="tab-settings" class="tab-content container">
+        <div class="panel" style="grid-column: span 2;">
+            <div class="setting-group">
+                <div class="setting-title">DATA MANAGEMENT</div>
+                <button class="setting-btn" onclick="saveGame(true)">Force Save</button>
+                <button class="setting-btn" onclick="resetGame()" style="color: #f88; border-color: #522;">HARD RESET</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="log" id="game-log">> 시스템 준비 완료.</div>
+
+    <script>
+        let bits = new Decimal(0);
+        let hardware = { rows: 1, cols: 1, speed: 0 };
+        let ranks = { impulse: 0, intuition: 0 };
+
+        const rankData = {
+            impulse: {
+                name: "Impulse", baseCost: 5, scale: 4,
+                ms: [
+                    { lv: 1, desc: "회로 설계 및 가속 해금" },
+                    { lv: 2, desc: "비트 수용량 최적화" },
+                    { lv: 3, desc: "하드웨어 비용 스케일링 -20%" },
+                    { lv: 4, desc: "기본 생산량 보너스 & 직관 개방" },
+                    { lv: 5, desc: "기본 생산량 2배" }
+                ]
+            },
+            intuition: {
+                name: "Intuition",
+                reqRank: 'impulse', reqLevelBase: 4,
+                ms: [
+                    { lv: 1, desc: "병렬 처리(열 확장) 해금" },
+                    { lv: 2, desc: "강력한 콤보 시너지 발현" },
+                    { lv: 3, desc: "전압 최적화 (점등 확률 +10%)" }
+                ]
+            }
+        };
+
+        function saveGame(notify = false) {
+            const saveObj = { bits: bits.toString(), hardware: hardware, ranks: ranks };
+            localStorage.setItem('infCompSave', JSON.stringify(saveObj));
+            if(notify) alert("저장되었습니다.");
+        }
+
+        function loadGame() {
+            const saveStr = localStorage.getItem('infCompSave');
+            if (saveStr) {
+                try {
+                    const saveObj = JSON.parse(saveStr);
+                    bits = new Decimal(saveObj.bits);
+                    hardware = saveObj.hardware;
+                    ranks = saveObj.ranks;
+                    addLog("데이터 로드 완료.");
+                } catch(e) {}
+            }
+        }
+
+        window.resetGame = function() {
+            if(confirm("모든 데이터를 삭제하고 초기화하시겠습니까?")) {
+                localStorage.removeItem('infCompSave');
+                location.reload();
+            }
+        }
+
+        const getHWCost = (type) => {
+            let base = { rows: 5, cols: 50, speed: 10 }[type];
+            let exp = { rows: 2.5, cols: 3.5, speed: 1.6 }[type];
+            let lv = type === 'speed' ? hardware.speed : (type === 'rows' ? hardware.rows - 1 : hardware.cols - 1);
+            if (ranks.impulse >= 3) exp = 1 + (exp - 1) * 0.8;
+            return new Decimal(base).times(Decimal.pow(exp, lv)).floor();
+        };
+
+        const getRankCost = (id) => {
+            if(id === 'intuition') return 0;
+            return new Decimal(rankData[id].baseCost).times(Decimal.pow(rankData[id].scale, ranks[id])).floor();
+        }
+
+        window.switchTab = function(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            const tabMap = { 'main': 0, 'stats': 1, 'settings': 2 };
+            document.querySelectorAll('.tab-btn')[tabMap[tabName]].classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            if(tabName === 'stats') renderStats();
+        }
+
+        window.buyHW = function(type) {
+            if((type === 'rows' && hardware.rows >= 8) || (type === 'cols' && hardware.cols >= 8)) return;
+
+            let cost = getHWCost(type);
+            if(bits.gte(cost)) {
+                bits = bits.minus(cost);
+                hardware[type]++;
+                if(type !== 'speed') initGrid();
+                updateUI();
+                saveGame();
+            }
+        }
+
+        window.rankUp = function(id) {
+            if(id === 'impulse') {
+                let cost = getRankCost(id);
+                if(bits.lt(cost)) return;
+
+                bits = new Decimal(0);
+                ranks.impulse++;
+                hardware = { rows: 1, cols: 1, speed: 0 };
+                addLog(`Impulse Lv.${ranks.impulse}: 사고 확장.`);
+            }
+            else if(id === 'intuition') {
+                let req = 4 + (ranks.intuition * 2);
+                if(ranks.impulse < req) return;
+
+                ranks.intuition++;
+                ranks.impulse = 0;
+                bits = new Decimal(0);
+                hardware = { rows: 1, cols: 1, speed: 0 };
+                addLog(`Intuition Lv.${ranks.intuition}: 상위 차원 진입.`);
+            }
+            initGrid();
+            updateUI();
+            saveGame();
+        }
+
+        function gameLoop() {
+            let delay = 1000 * Math.pow(0.9, hardware.speed);
+            processTick();
+            updateUI();
+            document.getElementById('cycle-speed').innerText = Math.floor(delay);
+            setTimeout(gameLoop, delay);
+        }
+
+        function processTick() {
+            let prob = 50;
+            if(ranks.intuition >= 3) prob += 10;
+
+            let onCount = 0;
+            let total = hardware.rows * hardware.cols;
+            for(let i=0; i<total; i++) {
+                if(Math.random() * 100 < prob) { onCount++; flash(i); }
+            }
+
+            if(onCount > 0) {
+                let baseBonus = 0;
+                if(ranks.impulse >= 4) {
+                    baseBonus = (ranks.impulse + ranks.intuition) * 0.5;
+                }
+
+                let yieldMult = new Decimal(1).plus(baseBonus);
+                if(ranks.impulse >= 5) yieldMult = yieldMult.times(2);
+
+                let comboMult = new Decimal(1);
+                if(ranks.intuition >= 2) comboMult = Decimal.pow(onCount, 1.0 + Math.sqrt(onCount)).div(onCount);
+
+                bits = bits.plus(yieldMult.times(onCount).times(comboMult));
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('bits').innerText = bits.floor().toString();
+            document.getElementById('lv-impulse').innerText = ranks.impulse;
+            document.getElementById('lv-intuition').innerText = ranks.intuition;
+
+            updateBtn('btn-impulse', getRankCost('impulse'), '');
+
+            const intBtn = document.getElementById('btn-intuition');
+            const reqImpulse = 4 + (ranks.intuition * 2);
+            intBtn.querySelector('.cost-text').innerText = `Req: Impulse Lv.${reqImpulse}`;
+            if(ranks.impulse >= reqImpulse) intBtn.classList.add('affordable');
+            else intBtn.classList.remove('affordable');
+            intBtn.disabled = ranks.impulse < reqImpulse;
+
+            // 하드웨어 버튼: Impulse 1 이상일 때만 표시 (Impulse 초기화 시 사라짐 - 정상)
+            if(ranks.impulse >= 1) {
+                document.getElementById('btn-rows').classList.remove('hidden');
+                document.getElementById('btn-speed').classList.remove('hidden');
+            } else {
+                // 숨기기 명시적으로 추가 (초기화 대응)
+                document.getElementById('btn-rows').classList.add('hidden');
+                document.getElementById('btn-speed').classList.add('hidden');
+            }
+
+            // 열 확장: Intuition 1 이상일 때 (Impulse 초기화 되어도 유지되어야 하는지? -> 버튼이 사라져야 한다고 했으므로 Impulse 기반이 맞음.
+            // 하지만 열 확장은 Intuition 기능임. 사용자가 "해당하는 업그레이드도 사라져야 한다"고 했으므로
+            // 조건이 안 맞으면 사라지게 둠. Intuition 1레벨 효과가 '해금'이므로 영구 해금일 수도 있으나,
+            // 사용자의 "Impulse 초기화되면 사라지는 게 맞다"는 멘트를 따름.)
+            if(ranks.intuition >= 1) document.getElementById('btn-cols').classList.remove('hidden');
+            else document.getElementById('btn-cols').classList.add('hidden');
+
+            // Intuition 버튼: Impulse 4 이상이거나, 이미 Intuition을 한 번이라도 올렸다면 표시
+            if(ranks.impulse >= 4 || ranks.intuition > 0) document.getElementById('btn-intuition').classList.remove('hidden');
+            else document.getElementById('btn-intuition').classList.add('hidden');
+
+            updateHWBtn('btn-rows', 'rows');
+            updateHWBtn('btn-cols', 'cols');
+            updateBtn('btn-speed', getHWCost('speed'), `Delay: ${Math.floor(1000 * Math.pow(0.9, hardware.speed))}ms -> ${Math.floor(1000 * Math.pow(0.9, hardware.speed + 1))}ms`);
+
+            if(bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
+            else document.getElementById('bit-container').classList.remove('affordable');
+
+            updateMilestones('impulse');
+            updateMilestones('intuition');
+        }
+
+        function updateHWBtn(id, type) {
+            const btn = document.getElementById(id);
+            if(hardware[type] >= 8) {
+                btn.querySelector('.rank-title').innerText = type === 'rows' ? "행 확장 (MAX)" : "열 확장 (MAX)";
+                btn.querySelector('.cost-text').innerText = "MAX";
+                btn.querySelector('.effect-info').innerText = "Limit Reached";
+                btn.classList.remove('affordable');
+                btn.disabled = true;
+            } else {
+                updateBtn(id, getHWCost(type), `${type==='rows'?'Rows':'Cols'}: ${hardware[type]} -> ${hardware[type] + 1} (Max 8)`);
+            }
+        }
+
+        function updateBtn(id, cost, effectText) {
+            const btn = document.getElementById(id);
+            if(!btn || (btn.disabled && cost === 'MAX')) return;
+
+            const costEl = btn.querySelector('.cost-text');
+            const effEl = btn.querySelector('.effect-info');
+            if(costEl) costEl.innerText = `Cost: ${cost.toString()}`;
+            if(effEl) effEl.innerText = effectText;
+
+            if(bits.gte(cost)) btn.classList.add('affordable');
+            else btn.classList.remove('affordable');
+            btn.disabled = bits.lt(cost);
+        }
+
+        function updateMilestones(id) {
+            const msContainer = document.getElementById(`ms-${id}`);
+            const data = rankData[id].ms;
+            const curLv = ranks[id];
+            let active = data.filter(m => m.lv <= curLv).pop();
+            let future = data.filter(m => m.lv > curLv).slice(0, active ? 2 : 3);
+            let html = '';
+            if(active) html += `<div class="ms-item ms-active">✔ Lv.${active.lv}: ${active.desc}</div>`;
+            future.forEach(m => { html += `<div class="ms-item ms-future">🔒 Lv.${m.lv}: ${m.desc}</div>`; });
+            msContainer.innerHTML = html;
+        }
+
+        function renderStats() {
+            const list = document.getElementById('stats-list');
+            let html = '';
+            ['impulse', 'intuition'].forEach(type => {
+                const curLv = ranks[type];
+                if(curLv === 0) return;
+                const activeMs = rankData[type].ms.filter(m => m.lv <= curLv);
+                activeMs.forEach(m => {
+                    html += `<div class="stat-line"><span class="stat-label">[${rankData[type].name} Lv.${m.lv}]</span> ${m.desc}</div>`;
+                });
+            });
+            if(ranks.impulse >= 4) {
+                 let bonus = (ranks.impulse + ranks.intuition) * 0.5 * 100;
+                 html += `<div class="stat-line"><span class="stat-label">[Effect]</span> Base Production Bonus: +${bonus}%</div>`;
+            }
+
+            if(html === '') html = '<div style="padding:10px; color:#666;">No active effects.</div>';
+            list.innerHTML = html;
+        }
+
+        function initGrid() {
+            const grid = document.getElementById('bulb-grid');
+            if(!grid) return;
+            grid.style.gridTemplateColumns = `repeat(${hardware.cols}, 1fr)`;
+            grid.innerHTML = '';
+            for(let i=0; i<hardware.rows*hardware.cols; i++) {
+                let b = document.createElement('div'); b.className = 'bulb'; b.id = `bulb-${i}`;
+                grid.appendChild(b);
+            }
+        }
+
+        function flash(id) {
+            const el = document.getElementById(`bulb-${id}`);
+            if(el) { el.classList.add('on'); setTimeout(()=>el.classList.remove('on'), 100); }
+        }
+
+        function addLog(msg) {
+            const log = document.getElementById('game-log');
+            log.innerHTML = `> ${msg}<br>${log.innerHTML}`;
+        }
+
+        window.onload = () => { loadGame(); initGrid(); gameLoop(); };
+    </script>
+</body>
+</html>
