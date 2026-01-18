@@ -29,10 +29,10 @@ async def load_game(user_id: str):
         row = conn.execute("SELECT data FROM saves WHERE user_id = ?", (user_id,)).fetchone()
     return {"data": json.loads(row[0])} if row else {"status": "error"}
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/docs", StaticFiles(directory="docs"), name="docs")
 
 @app.get("/")
-async def read_index(): return FileResponse('static/index.html')
+async def read_index(): return FileResponse('docs/index.html')
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
