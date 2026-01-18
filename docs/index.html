@@ -322,7 +322,10 @@
         }
 
         function gameLoop() {
-            let delay = 1000 * Math.pow(0.9, hardware.speed);
+            let delay = 1000 * Math.pow(0.85, hardware.speed);
+            // 최소 딜레이 제한: 브라우저 타이머 해상도와 성능을 고려하여 16ms (약 60fps)로 제한
+            // 4ms 미만이면 브라우저가 자동으로 올리지만, UI 업데이트 빈도를 고려해 16ms가 적절
+            delay = Math.max(delay, 50);
             processTick();
             updateUI();
             document.getElementById('cycle-speed').innerText = Math.floor(delay);
@@ -380,13 +383,16 @@
             else intBtn.classList.remove('affordable');
             intBtn.disabled = ranks.impulse < reqImpulse;
 
-            // 하드웨어 버튼: Impulse 1 이상일 때만 표시 (Impulse 초기화 시 사라짐 - 정상)
+            // 하드웨어 버튼: 행 확장은 Impulse 1 이상, 클럭 가속은 Impulse 2 이상
             if(ranks.impulse >= 1) {
                 document.getElementById('btn-rows').classList.remove('hidden');
+            } else {
+                document.getElementById('btn-rows').classList.add('hidden');
+            }
+            
+            if(ranks.impulse >= 2) {
                 document.getElementById('btn-speed').classList.remove('hidden');
             } else {
-                // 숨기기 명시적으로 추가 (초기화 대응)
-                document.getElementById('btn-rows').classList.add('hidden');
                 document.getElementById('btn-speed').classList.add('hidden');
             }
 
