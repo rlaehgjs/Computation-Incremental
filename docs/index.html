@@ -25,8 +25,8 @@
         .panel { border: 1px solid #333; padding: 20px; background: var(--panel-bg); border-radius: 8px; min-height: 450px; position: relative; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .help-btn { background: none; border: 1px solid #333; color: #666; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative; }
-        .help-btn:hover::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--neon); color: var(--white); padding: 8px 12px; border-radius: 4px; white-space: nowrap; margin-bottom: 5px; font-size: 11px; z-index: 1000; pointer-events: none; }
+        .help-btn { background: none; border: 1px solid #333; color: #666; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative; vertical-align: middle; margin-left: 6px; }
+        .help-btn:hover::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--neon); color: var(--white); padding: 8px 12px; border-radius: 4px; white-space: nowrap; margin-bottom: 5px; font-size: 11px; z-index: 1000; pointer-events: none; max-width: 300px; white-space: normal; text-align: left; }
         .help-btn:hover::before { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--neon); margin-bottom: -5px; z-index: 1001; pointer-events: none; }
 
         /* 회로 영역 (로그 위로 이동) */
@@ -429,12 +429,15 @@
                 if(curLv === 0) return;
                 const activeMs = rankData[type].ms.filter(m => m.lv <= curLv);
                 activeMs.forEach(m => {
-                    html += `<div class="stat-line"><span class="stat-label">[${rankData[type].name} Lv.${m.lv}]</span> ${m.desc}</div>`;
+                    const detailText = m.detail || '';
+                    const helpBtn = detailText ? `<button class="help-btn" data-tooltip="${detailText.replace(/"/g, '&quot;')}" style="display: inline-block;">?</button>` : '';
+                    html += `<div class="stat-line"><span class="stat-label">[${rankData[type].name} Lv.${m.lv}]</span> ${m.desc}${helpBtn}</div>`;
                 });
             });
             if(ranks.impulse >= 4) {
                  let bonus = (ranks.impulse + ranks.intuition) * 0.5 * 100;
-                 html += `<div class="stat-line"><span class="stat-label">[Effect]</span> Base Production Bonus: +${bonus}%</div>`;
+                 const bonusDetail = "기본 생산량이 (Impulse 레벨 + Intuition 레벨) × 50%만큼 증가합니다. 예: Impulse 5, Intuition 2일 때 +350% 보너스를 받습니다.";
+                 html += `<div class="stat-line"><span class="stat-label">[Effect]</span> Base Production Bonus: +${bonus}%<button class="help-btn" data-tooltip="${bonusDetail}" style="display: inline-block;">?</button></div>`;
             }
 
             if(html === '') html = '<div style="padding:10px; color:#666;">No active effects.</div>';
