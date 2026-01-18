@@ -1,0 +1,24 @@
+{
+    "impulse": {
+        "name": "Impulse",
+        "baseCost": 5,
+        "scale": 4,
+        "ms": [
+            { "lv": 1, "desc": "회로 설계 및 가속 해금" },
+            { "lv": 2, "desc": "비트 수용량 최적화" },
+            { "lv": 3, "desc": "하드웨어 비용 스케일링 -20%" },
+            { "lv": 4, "desc": "기본 생산량 보너스 & 직관 개방" },
+            { "lv": 5, "desc": "기본 생산량 2배" }
+        ]
+    },
+    "intuition": {
+        "name": "Intuition",
+        "reqRank": "impulse",
+        "reqLevelBase": 4,
+        "ms": [
+            { "lv": 1, "desc": "병렬 처리(열 확장) 해금" },
+            { "lv": 2, "desc": "강력한 콤보 시너지 발현" },
+            { "lv": 3, "desc": "전압 최적화 (점등 확률 +10%)" }
+        ]
+    }
+}

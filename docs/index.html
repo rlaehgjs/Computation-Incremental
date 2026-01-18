@@ -25,7 +25,9 @@
         .panel { border: 1px solid #333; padding: 20px; background: var(--panel-bg); border-radius: 8px; min-height: 450px; position: relative; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .help-btn { background: none; border: 1px solid #333; color: #666; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .help-btn { background: none; border: 1px solid #333; color: #666; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative; }
+        .help-btn:hover::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--neon); color: var(--white); padding: 8px 12px; border-radius: 4px; white-space: nowrap; margin-bottom: 5px; font-size: 11px; z-index: 1000; pointer-events: none; }
+        .help-btn:hover::before { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--neon); margin-bottom: -5px; z-index: 1001; pointer-events: none; }
 
         /* 회로 영역 (로그 위로 이동) */
         #circuit-area {
@@ -110,7 +112,7 @@
             <div class="panel">
                 <div class="section-header">
                     <h3 style="color: var(--neon); margin:0;">HARDWARE CONTROL</h3>
-                    <button class="help-btn" onclick="alert('전구는 매 사이클마다 50% 확률로 켜지며 정보를 생산합니다.')">?</button>
+                    <button class="help-btn" data-tooltip="전구는 매 사이클마다 50% 확률로 켜지며 정보를 생산합니다.">?</button>
                 </div>
 
                 <div id="hw-controls">
@@ -135,7 +137,7 @@
             <div class="panel">
                 <div class="section-header">
                     <h3 style="color: var(--neon); margin:0;">COGNITIVE STEPS</h3>
-                    <button class="help-btn" onclick="alert('상위 단계 진입 시 하위 단계 자원을 소모합니다.')">?</button>
+                    <button class="help-btn" data-tooltip="상위 단계 진입 시 하위 단계 자원을 소모합니다.">?</button>
                 </div>
 
                 <div id="rank-controls">
@@ -184,28 +186,23 @@
         let bits = new Decimal(0);
         let hardware = { rows: 1, cols: 1, speed: 0 };
         let ranks = { impulse: 0, intuition: 0 };
+        let rankData = null; // JSON에서 로드됨
 
-        const rankData = {
-            impulse: {
-                name: "Impulse", baseCost: 5, scale: 4,
-                ms: [
-                    { lv: 1, desc: "회로 설계 및 가속 해금" },
-                    { lv: 2, desc: "비트 수용량 최적화" },
-                    { lv: 3, desc: "하드웨어 비용 스케일링 -20%" },
-                    { lv: 4, desc: "기본 생산량 보너스 & 직관 개방" },
-                    { lv: 5, desc: "기본 생산량 2배" }
-                ]
-            },
-            intuition: {
-                name: "Intuition",
-                reqRank: 'impulse', reqLevelBase: 4,
-                ms: [
-                    { lv: 1, desc: "병렬 처리(열 확장) 해금" },
-                    { lv: 2, desc: "강력한 콤보 시너지 발현" },
-                    { lv: 3, desc: "전압 최적화 (점등 확률 +10%)" }
-                ]
+        // rankData.json 파일에서 cognitive step 데이터 로드
+        async function loadRankData() {
+            try {
+                const response = await fetch('rankData.json');
+                if (!response.ok) {
+                    throw new Error('rankData.json을 불러올 수 없습니다.');
+                }
+                rankData = await response.json();
+                return true;
+            } catch (error) {
+                console.error('rankData 로드 실패:', error);
+                alert('게임 데이터를 불러올 수 없습니다. 페이지를 새로고침해주세요.');
+                return false;
             }
-        };
+        }
 
         function saveGame(notify = false) {
             const saveObj = { bits: bits.toString(), hardware: hardware, ranks: ranks };
@@ -322,7 +319,18 @@
                 if(ranks.impulse >= 5) yieldMult = yieldMult.times(2);
 
                 let comboMult = new Decimal(1);
-                if(ranks.intuition >= 2) comboMult = Decimal.pow(onCount, 1.0 + Math.sqrt(onCount)).div(onCount);
+                if(ranks.intuition >= 2) {
+                    // 개선된 콤보 보너스: 로그 기반으로 완만한 증가
+                    // 작은 콤보(1-5): 약간의 보너스, 큰 콤보(10+): 로그 스케일로 완만하게 증가
+                    if(onCount <= 5) {
+                        // 작은 콤보는 선형 보너스 (최대 1.5배)
+                        comboMult = new Decimal(1).plus(onCount * 0.1);
+                    } else {
+                        // 큰 콤보는 로그 기반 보너스 (최대 약 3-4배 정도)
+                        let logBonus = Math.log(onCount) / Math.log(5); // log5(onCount)
+                        comboMult = new Decimal(1).plus(logBonus * 0.5);
+                    }
+                }
 
                 bits = bits.plus(yieldMult.times(onCount).times(comboMult));
             }
@@ -454,7 +462,20 @@
             log.innerHTML = `> ${msg}<br>${log.innerHTML}`;
         }
 
-        window.onload = () => { loadGame(); initGrid(); gameLoop(); };
+        // 자동 저장 (1분마다)
+        setInterval(() => {
+            saveGame();
+        }, 60000);
+
+        // 게임 초기화: rankData 로드 후 게임 시작
+        window.onload = async () => {
+            const loaded = await loadRankData();
+            if (loaded) {
+                loadGame();
+                initGrid();
+                gameLoop();
+            }
+        };
     </script>
 </body>
 </html>
