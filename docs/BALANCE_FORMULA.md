@@ -30,13 +30,14 @@
 
 ### Impulse
 ```
-비용 = 5 × (4 ^ 현재레벨)
+비용 = 5 × (2.5 ^ (현재레벨 ^ (7/6)))
 ```
 - Lv.0 → Lv.1: 5
-- Lv.1 → Lv.2: 20
-- Lv.2 → Lv.3: 80
-- Lv.3 → Lv.4: 320
-- Lv.4 → Lv.5: 1280
+- Lv.1 → Lv.2: 12
+- Lv.2 → Lv.3: 37
+- Lv.3 → Lv.4: 128
+- Lv.4 → Lv.5: 557 (기존: 1280)
+- 초반 구간 비용 완만해짐
 
 ### Intuition
 - 비용: **0** (Impulse 레벨 소모)
@@ -100,15 +101,18 @@ else:
 
 ### 공식
 ```
-delay = 1000 × (0.9 ^ speed)
+delay = 1000
+for i in 0..speed-1:
+  if i < 14: delay *= 0.85
+  else: delay *= 0.93 (Softcap)
 ```
 
 **예시:**
 - speed 0: 1000ms
-- speed 1: 900ms
-- speed 5: 590ms
-- speed 10: 349ms
-- speed 20: 122ms
+- speed 1: 850ms
+- speed 14: 1000 × 0.85^14 ≈ 102ms
+- speed 15: 102 × 0.93 ≈ 95ms
+- speed 레벨 14+ 이후 효율 감소 (0.85 → 0.93)
 
 ---
 

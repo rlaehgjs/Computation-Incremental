@@ -1,33 +1,170 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <title>The Infinite Computer: Genesis v2.3</title>
     <script src="https://cdn.jsdelivr.net/npm/break_eternity.js"></script>
     <style>
-        :root { --neon: #00ff41; --bg: #050505; --white: #eee; --gray: #444; --panel-bg: #0a0a0a; }
-        body { background: var(--bg); color: var(--white); font-family: 'Courier New', monospace; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        :root {
+            --neon: #00ff41;
+            --bg: #050505;
+            --white: #eee;
+            --gray: #444;
+            --panel-bg: #0a0a0a;
+        }
 
-        .tab-nav { width: 900px; display: flex; gap: 10px; margin-bottom: 15px; }
-        .tab-btn { flex: 1; background: #111; border: 1px solid #333; color: #888; padding: 10px; cursor: pointer; text-align: center; font-weight: bold; transition: 0.2s; }
-        .tab-btn:hover { background: #1a1a1a; color: #ccc; }
-        .tab-btn.active { background: var(--panel-bg); border-color: var(--neon); color: var(--neon); box-shadow: 0 0 10px rgba(0, 255, 65, 0.1); }
+        body {
+            background: var(--bg);
+            color: var(--white);
+            font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        .tab-content { display: none; width: 900px; }
-        .tab-content.active { display: flex; flex-direction: column; gap: 20px; }
+        .tab-nav {
+            width: 900px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
 
-        .header { width: 900px; display: flex; justify-content: space-between; border-bottom: 2px solid #222; padding-bottom: 10px; margin-bottom: 20px; }
-        .bits-count { font-size: 28px; transition: 0.3s; }
-        .bits-count.affordable { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        .tab-btn {
+            flex: 1;
+            background: #111;
+            border: 1px solid #333;
+            color: #888;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: #1a1a1a;
+            color: #ccc;
+        }
+
+        .tab-btn.active {
+            background: var(--panel-bg);
+            border-color: var(--neon);
+            color: var(--neon);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+            width: 900px;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            width: 900px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #222;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .bits-count {
+            font-size: 28px;
+            transition: 0.3s;
+        }
+
+        .bits-count.affordable {
+            color: var(--neon);
+            text-shadow: 0 0 10px var(--neon);
+        }
 
         /* 패널 레이아웃 수정 */
-        .panel-container { display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; width: 100%; }
-        .panel { border: 1px solid #333; padding: 20px; background: var(--panel-bg); border-radius: 8px; min-height: 450px; position: relative; }
+        .panel-container {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+            width: 100%;
+        }
 
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .help-btn { background: none; border: 1px solid #333; color: #666; cursor: pointer; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; position: relative; vertical-align: middle; margin-left: 6px; }
-        .help-btn:hover::after { content: attr(data-tooltip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--panel-bg); border: 1px solid var(--neon); color: var(--white); padding: 8px 12px; border-radius: 4px; margin-bottom: 5px; font-size: 11px; z-index: 1000; pointer-events: none; display: block; width: auto; min-width: 200px; max-width: 500px; white-space: normal; word-wrap: break-word; word-break: break-word; text-align: left; box-sizing: border-box; }
-        .help-btn:hover::before { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--neon); margin-bottom: -5px; z-index: 1001; pointer-events: none; }
+        .panel {
+            border: 1px solid #333;
+            padding: 20px;
+            background: var(--panel-bg);
+            border-radius: 8px;
+            min-height: 450px;
+            position: relative;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .help-btn {
+            background: none;
+            border: 1px solid #333;
+            color: #666;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            position: relative;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+
+        .help-btn:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel-bg);
+            border: 1px solid var(--neon);
+            color: var(--white);
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 11px;
+            z-index: 1000;
+            pointer-events: none;
+            display: block;
+            width: auto;
+            min-width: 200px;
+            max-width: 500px;
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-word;
+            text-align: left;
+            box-sizing: border-box;
+        }
+
+        .help-btn:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: var(--neon);
+            margin-bottom: -5px;
+            z-index: 1001;
+            pointer-events: none;
+        }
 
         /* 회로 영역 (로그 위로 이동) */
         #circuit-area {
@@ -51,12 +188,14 @@
         }
 
         .bulb {
-            width: 24px; height: 24px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: #1a1a1a;
             border: 2px solid #333;
             transition: background 0.05s, box-shadow 0.05s;
         }
+
         .bulb.on {
             background: #ffca28;
             border-color: #ffca28;
@@ -64,33 +203,141 @@
             z-index: 10;
         }
 
-        button.action-btn { background: #111; color: var(--white); border: 1px solid var(--gray); padding: 12px; cursor: pointer; width: 100%; margin-bottom: 12px; text-align: left; border-radius: 4px; position: relative; transition: 0.2s; }
-        button.action-btn:hover:not(:disabled) { border-color: var(--neon); background: #161616; transform: translateX(2px); }
-        button.action-btn.affordable { color: var(--neon); border-color: var(--neon); }
-        button.action-btn:disabled { opacity: 0.75; cursor: not-allowed; }
+        button.action-btn {
+            background: #111;
+            color: var(--white);
+            border: 1px solid var(--gray);
+            padding: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            text-align: left;
+            border-radius: 4px;
+            position: relative;
+            transition: 0.2s;
+        }
 
-        .rank-title { font-size: 16px; font-weight: bold; display: block; margin-bottom: 4px; }
-        .cost-text { font-size: 13px; color: #aaa; position: absolute; top: 12px; right: 12px; }
-        button.action-btn.affordable .cost-text { color: var(--neon); }
-        .effect-info { font-size: 11px; color: #888; margin-top: 4px; display: block; }
+        button.action-btn:hover:not(:disabled) {
+            border-color: var(--neon);
+            background: #161616;
+            transform: translateX(2px);
+        }
 
-        .milestones { border-top: 1px dashed #333; padding-top: 6px; margin-top: 8px; font-size: 11px; }
-        .ms-item { margin-bottom: 2px; }
-        .ms-active { color: var(--neon); font-weight: bold; }
-        .ms-future { color: #555; }
+        button.action-btn.affordable {
+            color: var(--neon);
+            border-color: var(--neon);
+        }
 
-        .log { height: 100px; overflow-y: hidden; border: 1px solid #222; margin-top: 20px; font-size: 12px; color: #666; width: 900px; padding: 10px; background: #000; box-sizing: border-box; }
-        .hidden { display: none !important; }
+        button.action-btn:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
 
-        .stat-line { padding: 8px; border-bottom: 1px solid #222; font-size: 14px; }
-        .stat-label { color: var(--neon); font-weight: bold; margin-right: 10px; }
+        .rank-title {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
 
-        .setting-btn { background: #222; border: 1px solid #555; color: #eee; padding: 10px 20px; margin-bottom: 10px; cursor: pointer; width: 100%; text-align: left; }
-        .setting-btn:hover { background: #333; border-color: #888; }
-        .setting-group { margin-bottom: 20px; }
-        .setting-title { color: var(--neon); border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
+        .cost-text {
+            font-size: 13px;
+            color: #aaa;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+
+        button.action-btn.affordable .cost-text {
+            color: var(--neon);
+        }
+
+        .effect-info {
+            font-size: 11px;
+            color: #888;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .milestones {
+            border-top: 1px dashed #333;
+            padding-top: 6px;
+            margin-top: 8px;
+            font-size: 11px;
+        }
+
+        .ms-item {
+            margin-bottom: 2px;
+        }
+
+        .ms-active {
+            color: var(--neon);
+            font-weight: bold;
+        }
+
+        .ms-future {
+            color: #555;
+        }
+
+        .log {
+            height: 100px;
+            overflow-y: hidden;
+            border: 1px solid #222;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            width: 900px;
+            padding: 10px;
+            background: #000;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .stat-line {
+            padding: 8px;
+            border-bottom: 1px solid #222;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            color: var(--neon);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .setting-btn {
+            background: #222;
+            border: 1px solid #555;
+            color: #eee;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+
+        .setting-btn:hover {
+            background: #333;
+            border-color: #888;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-title {
+            color: var(--neon);
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="header">
@@ -175,7 +422,8 @@
             <div class="setting-group">
                 <div class="setting-title">DATA MANAGEMENT</div>
                 <button class="setting-btn" onclick="saveGame(true)">Force Save</button>
-                <button class="setting-btn" onclick="resetGame()" style="color: #f88; border-color: #522;">HARD RESET</button>
+                <button class="setting-btn" onclick="resetGame()" style="color: #f88; border-color: #522;">HARD
+                    RESET</button>
             </div>
         </div>
     </div>
@@ -194,11 +442,11 @@
                 // 현재 페이지의 경로를 기준으로 rankData.json 경로 설정
                 const jsonPath = new URL('rankData.json', window.location.href).href;
                 const response = await fetch(jsonPath);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                
+
                 const data = await response.json();
                 rankData = data;
                 console.log('rankData 로드 성공:', rankData);
@@ -214,7 +462,7 @@
         function saveGame(notify = false) {
             const saveObj = { bits: bits.toString(), hardware: hardware, ranks: ranks };
             localStorage.setItem('infCompSave', JSON.stringify(saveObj));
-            if(notify) alert("저장되었습니다.");
+            if (notify) alert("저장되었습니다.");
         }
 
         function loadGame() {
@@ -226,12 +474,12 @@
                     hardware = saveObj.hardware;
                     ranks = saveObj.ranks;
                     addLog("데이터 로드 완료.");
-                } catch(e) {}
+                } catch (e) { }
             }
         }
 
-        window.resetGame = function() {
-            if(confirm("모든 데이터를 삭제하고 초기화하시겠습니까?")) {
+        window.resetGame = function () {
+            if (confirm("모든 데이터를 삭제하고 초기화하시겠습니까?")) {
                 localStorage.removeItem('infCompSave');
                 location.reload();
             }
@@ -250,9 +498,9 @@
             let base = { rows: 5, cols: 50, speed: 10 }[type];
             let exp = { rows: 2.5, cols: 3.5, speed: 1.6 }[type];
             let lv = type === 'speed' ? hardware.speed : (type === 'rows' ? hardware.rows - 1 : hardware.cols - 1);
-            
+
             if (ranks.impulse >= 3) exp = 1 + (exp - 1) * 0.8;
-            
+
             // 가로(cols) 레벨 5 이상일 때 비용 증가율 가속
             // 공식: exp^(레벨 * (레벨 - 3)^1.5)
             if (type === 'cols' && hardware.cols >= 5) {
@@ -260,55 +508,59 @@
                 let adjustedExp = currentLevel * Math.pow(currentLevel - 3, 1.5);
                 return new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
             }
-            
+
             return new Decimal(base).times(Decimal.pow(exp, lv)).floor();
         };
 
         const getRankCost = (id) => {
-            if(id === 'intuition') return 0;
+            if (id === 'intuition') return 0;
+            if (id === 'impulse') {
+                let exponent = Math.pow(ranks.impulse, 7 / 6);
+                return Decimal.pow(2.5, exponent).times(5).floor();
+            }
             return new Decimal(rankData[id].baseCost).times(Decimal.pow(rankData[id].scale, ranks[id])).floor();
         }
 
-        window.switchTab = function(tabName) {
+        window.switchTab = function (tabName) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
             const tabMap = { 'main': 0, 'stats': 1, 'settings': 2 };
             document.querySelectorAll('.tab-btn')[tabMap[tabName]].classList.add('active');
             document.getElementById(`tab-${tabName}`).classList.add('active');
-            if(tabName === 'stats') renderStats();
+            if (tabName === 'stats') renderStats();
         }
 
-        window.buyHW = function(type) {
+        window.buyHW = function (type) {
             // 세로 최대치: 4
-            if(type === 'rows' && hardware.rows >= 4) return;
-            
+            if (type === 'rows' && hardware.rows >= 4) return;
+
             // 가로 최대치: 기본 4, Impulse 5+ 레벨마다 +1
-            if(type === 'cols' && hardware.cols >= getMaxCols()) return;
+            if (type === 'cols' && hardware.cols >= getMaxCols()) return;
 
             let cost = getHWCost(type);
-            if(bits.gte(cost)) {
+            if (bits.gte(cost)) {
                 bits = bits.minus(cost);
                 hardware[type]++;
-                if(type !== 'speed') initGrid();
+                if (type !== 'speed') initGrid();
                 updateUI();
                 saveGame();
             }
         }
 
-        window.rankUp = function(id) {
-            if(id === 'impulse') {
+        window.rankUp = function (id) {
+            if (id === 'impulse') {
                 let cost = getRankCost(id);
-                if(bits.lt(cost)) return;
+                if (bits.lt(cost)) return;
 
                 bits = new Decimal(0);
                 ranks.impulse++;
                 hardware = { rows: 1, cols: 1, speed: 0 };
                 addLog(`Impulse Lv.${ranks.impulse}: 사고 확장.`);
             }
-            else if(id === 'intuition') {
+            else if (id === 'intuition') {
                 let req = 4 + (ranks.intuition * 2);
-                if(ranks.impulse < req) return;
+                if (ranks.impulse < req) return;
 
                 ranks.intuition++;
                 ranks.impulse = 0;
@@ -321,11 +573,23 @@
             saveGame();
         }
 
+        function calculateDelay(speedLevel) {
+            let delay = 1000;
+            for (let i = 0; i < speedLevel; i++) {
+                if (i < 14) {
+                    delay *= 0.85;
+                } else {
+                    delay *= 0.93;
+                }
+            }
+            return delay;
+        }
+
         function gameLoop() {
-            let delay = 1000 * Math.pow(0.85, hardware.speed);
+            let delay = calculateDelay(hardware.speed);
             // 최소 딜레이 제한: 브라우저 타이머 해상도와 성능을 고려하여 16ms (약 60fps)로 제한
             // 4ms 미만이면 브라우저가 자동으로 올리지만, UI 업데이트 빈도를 고려해 16ms가 적절
-            delay = Math.max(delay, 50);
+            delay = Math.max(delay, 16);
             processTick();
             updateUI();
             document.getElementById('cycle-speed').innerText = Math.floor(delay);
@@ -334,28 +598,28 @@
 
         function processTick() {
             let prob = 50;
-            if(ranks.intuition >= 3) prob += 10;
+            if (ranks.intuition >= 3) prob += 10;
 
             let onCount = 0;
             let total = hardware.rows * hardware.cols;
-            for(let i=0; i<total; i++) {
-                if(Math.random() * 100 < prob) { onCount++; flash(i); }
+            for (let i = 0; i < total; i++) {
+                if (Math.random() * 100 < prob) { onCount++; flash(i); }
             }
 
-            if(onCount > 0) {
+            if (onCount > 0) {
                 let baseBonus = 0;
-                if(ranks.impulse >= 4) {
+                if (ranks.impulse >= 4) {
                     baseBonus = (ranks.impulse + ranks.intuition) * 0.5;
                 }
 
                 let yieldMult = new Decimal(1).plus(baseBonus);
-                if(ranks.impulse >= 5) yieldMult = yieldMult.times(2);
+                if (ranks.impulse >= 5) yieldMult = yieldMult.times(2);
 
                 let comboMult = new Decimal(1);
-                if(ranks.intuition >= 2) {
+                if (ranks.intuition >= 2) {
                     // 개선된 콤보 보너스: 로그 기반으로 완만한 증가
                     // 작은 콤보(1-5): 약간의 보너스, 큰 콤보(10+): 로그 스케일로 완만하게 증가
-                    if(onCount <= 5) {
+                    if (onCount <= 5) {
                         // 작은 콤보는 선형 보너스 (최대 1.5배)
                         comboMult = new Decimal(1).plus(onCount * 0.1);
                     } else {
@@ -379,18 +643,18 @@
             const intBtn = document.getElementById('btn-intuition');
             const reqImpulse = 4 + (ranks.intuition * 2);
             intBtn.querySelector('.cost-text').innerText = `Req: Impulse Lv.${reqImpulse}`;
-            if(ranks.impulse >= reqImpulse) intBtn.classList.add('affordable');
+            if (ranks.impulse >= reqImpulse) intBtn.classList.add('affordable');
             else intBtn.classList.remove('affordable');
             intBtn.disabled = ranks.impulse < reqImpulse;
 
             // 하드웨어 버튼: 행 확장은 Impulse 1 이상, 클럭 가속은 Impulse 2 이상
-            if(ranks.impulse >= 1) {
+            if (ranks.impulse >= 1) {
                 document.getElementById('btn-rows').classList.remove('hidden');
             } else {
                 document.getElementById('btn-rows').classList.add('hidden');
             }
-            
-            if(ranks.impulse >= 2) {
+
+            if (ranks.impulse >= 2) {
                 document.getElementById('btn-speed').classList.remove('hidden');
             } else {
                 document.getElementById('btn-speed').classList.add('hidden');
@@ -400,18 +664,18 @@
             // 하지만 열 확장은 Intuition 기능임. 사용자가 "해당하는 업그레이드도 사라져야 한다"고 했으므로
             // 조건이 안 맞으면 사라지게 둠. Intuition 1레벨 효과가 '해금'이므로 영구 해금일 수도 있으나,
             // 사용자의 "Impulse 초기화되면 사라지는 게 맞다"는 멘트를 따름.)
-            if(ranks.intuition >= 1) document.getElementById('btn-cols').classList.remove('hidden');
+            if (ranks.intuition >= 1) document.getElementById('btn-cols').classList.remove('hidden');
             else document.getElementById('btn-cols').classList.add('hidden');
 
             // Intuition 버튼: Impulse 4 이상이거나, 이미 Intuition을 한 번이라도 올렸다면 표시
-            if(ranks.impulse >= 4 || ranks.intuition > 0) document.getElementById('btn-intuition').classList.remove('hidden');
+            if (ranks.impulse >= 4 || ranks.intuition > 0) document.getElementById('btn-intuition').classList.remove('hidden');
             else document.getElementById('btn-intuition').classList.add('hidden');
 
             updateHWBtn('btn-rows', 'rows');
             updateHWBtn('btn-cols', 'cols');
-            updateBtn('btn-speed', getHWCost('speed'), `Delay: ${Math.floor(1000 * Math.pow(0.9, hardware.speed))}ms -> ${Math.floor(1000 * Math.pow(0.9, hardware.speed + 1))}ms`);
+            updateBtn('btn-speed', getHWCost('speed'), `Delay: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`);
 
-            if(bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
+            if (bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
             else document.getElementById('bit-container').classList.remove('affordable');
 
             updateMilestones('impulse');
@@ -421,28 +685,28 @@
         function updateHWBtn(id, type) {
             const btn = document.getElementById(id);
             let maxVal = type === 'rows' ? 4 : getMaxCols();
-            
-            if(hardware[type] >= maxVal) {
+
+            if (hardware[type] >= maxVal) {
                 btn.querySelector('.rank-title').innerText = type === 'rows' ? "행 확장 (MAX)" : "열 확장 (MAX)";
                 btn.querySelector('.cost-text').innerText = "MAX";
                 btn.querySelector('.effect-info').innerText = "Limit Reached";
                 btn.classList.remove('affordable');
                 btn.disabled = true;
             } else {
-                updateBtn(id, getHWCost(type), `${type==='rows'?'Rows':'Cols'}: ${hardware[type]} -> ${hardware[type] + 1} (Max ${maxVal})`);
+                updateBtn(id, getHWCost(type), `${type === 'rows' ? 'Rows' : 'Cols'}: ${hardware[type]} -> ${hardware[type] + 1} (Max ${maxVal})`);
             }
         }
 
         function updateBtn(id, cost, effectText) {
             const btn = document.getElementById(id);
-            if(!btn || (btn.disabled && cost === 'MAX')) return;
+            if (!btn || (btn.disabled && cost === 'MAX')) return;
 
             const costEl = btn.querySelector('.cost-text');
             const effEl = btn.querySelector('.effect-info');
-            if(costEl) costEl.innerText = `Cost: ${cost.toString()}`;
-            if(effEl) effEl.innerText = effectText;
+            if (costEl) costEl.innerText = `Cost: ${cost.toString()}`;
+            if (effEl) effEl.innerText = effectText;
 
-            if(bits.gte(cost)) btn.classList.add('affordable');
+            if (bits.gte(cost)) btn.classList.add('affordable');
             else btn.classList.remove('affordable');
             btn.disabled = bits.lt(cost);
         }
@@ -454,7 +718,7 @@
             let active = data.filter(m => m.lv <= curLv).pop();
             let future = data.filter(m => m.lv > curLv).slice(0, active ? 2 : 3);
             let html = '';
-            if(active) html += `<div class="ms-item ms-active">✔ Lv.${active.lv}: ${active.desc}</div>`;
+            if (active) html += `<div class="ms-item ms-active">✔ Lv.${active.lv}: ${active.desc}</div>`;
             future.forEach(m => { html += `<div class="ms-item ms-future">🔒 Lv.${m.lv}: ${m.desc}</div>`; });
             msContainer.innerHTML = html;
         }
@@ -464,7 +728,7 @@
             let html = '';
             ['impulse', 'intuition'].forEach(type => {
                 const curLv = ranks[type];
-                if(curLv === 0) return;
+                if (curLv === 0) return;
                 const activeMs = rankData[type].ms.filter(m => m.lv <= curLv);
                 activeMs.forEach(m => {
                     const detailText = m.detail || '';
@@ -472,22 +736,22 @@
                     html += `<div class="stat-line"><span class="stat-label">[${rankData[type].name} Lv.${m.lv}]</span> ${m.desc}${helpBtn}</div>`;
                 });
             });
-            if(ranks.impulse >= 4) {
-                 let bonus = (ranks.impulse + ranks.intuition) * 0.5 * 100;
-                 const bonusDetail = "기본 생산량이 (Impulse 레벨 + Intuition 레벨) × 50%만큼 증가합니다. 예: Impulse 5, Intuition 2일 때 +350% 보너스를 받습니다.";
-                 html += `<div class="stat-line"><span class="stat-label">[Effect]</span> Base Production Bonus: +${bonus}%<button class="help-btn" data-tooltip="${bonusDetail}" style="display: inline-block;">?</button></div>`;
+            if (ranks.impulse >= 4) {
+                let bonus = (ranks.impulse + ranks.intuition) * 0.5 * 100;
+                const bonusDetail = "기본 생산량이 (Impulse 레벨 + Intuition 레벨) × 50%만큼 증가합니다. 예: Impulse 5, Intuition 2일 때 +350% 보너스를 받습니다.";
+                html += `<div class="stat-line"><span class="stat-label">[Effect]</span> Base Production Bonus: +${bonus}%<button class="help-btn" data-tooltip="${bonusDetail}" style="display: inline-block;">?</button></div>`;
             }
 
-            if(html === '') html = '<div style="padding:10px; color:#666;">No active effects.</div>';
+            if (html === '') html = '<div style="padding:10px; color:#666;">No active effects.</div>';
             list.innerHTML = html;
         }
 
         function initGrid() {
             const grid = document.getElementById('bulb-grid');
-            if(!grid) return;
+            if (!grid) return;
             grid.style.gridTemplateColumns = `repeat(${hardware.cols}, 1fr)`;
             grid.innerHTML = '';
-            for(let i=0; i<hardware.rows*hardware.cols; i++) {
+            for (let i = 0; i < hardware.rows * hardware.cols; i++) {
                 let b = document.createElement('div'); b.className = 'bulb'; b.id = `bulb-${i}`;
                 grid.appendChild(b);
             }
@@ -495,7 +759,7 @@
 
         function flash(id) {
             const el = document.getElementById(`bulb-${id}`);
-            if(el) { el.classList.add('on'); setTimeout(()=>el.classList.remove('on'), 100); }
+            if (el) { el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 100); }
         }
 
         function addLog(msg) {
@@ -519,4 +783,5 @@
         };
     </script>
 </body>
+
 </html>
