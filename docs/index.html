@@ -489,7 +489,7 @@
         function getMaxCols() {
             let baseMax = 4;
             if (ranks.impulse >= 5) {
-                return min(baseMax + (ranks.impulse - 4), 8);
+                return Math.min(baseMax + (ranks.impulse - 4), 8);
             }
             return baseMax;
         }
