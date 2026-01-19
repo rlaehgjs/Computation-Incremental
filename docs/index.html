@@ -364,8 +364,8 @@
 
                 <div id="hw-controls">
                     <button id="btn-rows" class="action-btn hidden" onclick="buyHW('rows')">
-                        <span class="rank-title">행 확장 (Add Row)</span>
-                        <span id="c-rows" class="cost-text">Cost: 5</span>
+                        <span class="rank-title">행 확장 (Rows)</span>
+                        <span id="c-rows" class="cost-text">Cost: 50</span>
                         <span id="eff-rows" class="effect-info">Rows: 1 -> 2 (Max 4)</span>
                     </button>
                     <button id="btn-speed" class="action-btn hidden" onclick="buyHW('speed')">
@@ -374,8 +374,8 @@
                         <span id="eff-speed" class="effect-info">Delay: 1000ms -> 900ms</span>
                     </button>
                     <button id="btn-cols" class="action-btn hidden" onclick="buyHW('cols')">
-                        <span class="rank-title">열 확장 (Add Col)</span>
-                        <span id="c-cols" class="cost-text">Cost: 50</span>
+                        <span class="rank-title">열 확장 (Cols)</span>
+                        <span id="c-cols" class="cost-text">Cost: 5</span>
                         <span id="eff-cols" class="effect-info">Cols: 1 -> 2 (Max 4)</span>
                     </button>
                 </div>
@@ -495,14 +495,20 @@
         }
 
         const getHWCost = (type) => {
-            let base = { rows: 5, cols: 50, speed: 10 }[type];
-            let exp = { rows: 2.5, cols: 3.5, speed: 1.6 }[type];
+            let base = { rows: 50, cols: 5, speed: 10 }[type];
+            let exp = { rows: 3.5, cols: 2.5, speed: 1.6 }[type];
             let lv = type === 'speed' ? hardware.speed : (type === 'rows' ? hardware.rows - 1 : hardware.cols - 1);
 
             if (ranks.impulse >= 3) exp = 1 + (exp - 1) * 0.8;
 
+            // 행(rows) 스케일링 가속 (시작점 0부터 적용)
+            if (type === 'rows') {
+                let currentLevel = hardware.rows;
+                let adjustedExp = currentLevel * Math.pow(currentLevel, 1.5);
+                return new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
+            }
+
             // 가로(cols) 레벨 5 이상일 때 비용 증가율 가속
-            // 공식: exp^(레벨 * (레벨 - 3)^1.5)
             if (type === 'cols' && hardware.cols >= 5) {
                 let currentLevel = hardware.cols; // 현재 레벨 (1부터 시작)
                 let adjustedExp = currentLevel * Math.pow(currentLevel - 3, 1.5);
@@ -647,25 +653,24 @@
             else intBtn.classList.remove('affordable');
             intBtn.disabled = ranks.impulse < reqImpulse;
 
-            // 하드웨어 버튼: 행 확장은 Impulse 1 이상, 클럭 가속은 Impulse 2 이상
+            // 하드웨어 버튼 해금 조건 변경
+            // 열 확장(cols)은 Impulse 1 이상
             if (ranks.impulse >= 1) {
-                document.getElementById('btn-rows').classList.remove('hidden');
+                document.getElementById('btn-cols').classList.remove('hidden');
             } else {
-                document.getElementById('btn-rows').classList.add('hidden');
+                document.getElementById('btn-cols').classList.add('hidden');
             }
 
+            // 클럭 가속은 Impulse 2 이상 유지
             if (ranks.impulse >= 2) {
                 document.getElementById('btn-speed').classList.remove('hidden');
             } else {
                 document.getElementById('btn-speed').classList.add('hidden');
             }
 
-            // 열 확장: Intuition 1 이상일 때 (Impulse 초기화 되어도 유지되어야 하는지? -> 버튼이 사라져야 한다고 했으므로 Impulse 기반이 맞음.
-            // 하지만 열 확장은 Intuition 기능임. 사용자가 "해당하는 업그레이드도 사라져야 한다"고 했으므로
-            // 조건이 안 맞으면 사라지게 둠. Intuition 1레벨 효과가 '해금'이므로 영구 해금일 수도 있으나,
-            // 사용자의 "Impulse 초기화되면 사라지는 게 맞다"는 멘트를 따름.)
-            if (ranks.intuition >= 1) document.getElementById('btn-cols').classList.remove('hidden');
-            else document.getElementById('btn-cols').classList.add('hidden');
+            // 행 확장(rows)은 Intuition 1 이상
+            if (ranks.intuition >= 1) document.getElementById('btn-rows').classList.remove('hidden');
+            else document.getElementById('btn-rows').classList.add('hidden');
 
             // Intuition 버튼: Impulse 4 이상이거나, 이미 Intuition을 한 번이라도 올렸다면 표시
             if (ranks.impulse >= 4 || ranks.intuition > 0) document.getElementById('btn-intuition').classList.remove('hidden');
@@ -684,10 +689,10 @@
 
         function updateHWBtn(id, type) {
             const btn = document.getElementById(id);
-            let maxVal = type === 'rows' ? 4 : getMaxCols();
+            let maxVal = type === 'cols' ? getMaxCols() : 4;
 
             if (hardware[type] >= maxVal) {
-                btn.querySelector('.rank-title').innerText = type === 'rows' ? "행 확장 (MAX)" : "열 확장 (MAX)";
+                btn.querySelector('.rank-title').innerText = type === 'cols' ? "열 확장 (MAX)" : "행 확장 (MAX)";
                 btn.querySelector('.cost-text').innerText = "MAX";
                 btn.querySelector('.effect-info').innerText = "Limit Reached";
                 btn.classList.remove('affordable');
