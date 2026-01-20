@@ -501,17 +501,19 @@
 
             if (ranks.impulse >= 3) exp = 1 + (exp - 1) * 0.8;
 
-            // 행(rows) 스케일링 가속 (시작점 0부터 적용)
+            // 행(rows) 스케일링 가속 (Level 1부터 적용)
             if (type === 'rows') {
-                let currentLevel = hardware.rows;
-                let adjustedExp = currentLevel * Math.pow(currentLevel, 1.5);
+                let currentLevel = hardware.rows - 1;
+                // Level 1: adj=0 (Cost 50), Level 2: adj=2 (Cost 612), Level 3: adj=4.8 (Cost 21k)
+                let adjustedExp = currentLevel + Math.pow(currentLevel, 1.5);
                 return new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
             }
 
-            // 가로(cols) 레벨 5 이상일 때 비용 증가율 가속
+            // 가로(cols) 레벨 5 이상으로 올릴 때 비용 증가율 가속
             if (type === 'cols' && hardware.cols >= 5) {
-                let currentLevel = hardware.cols; // 현재 레벨 (1부터 시작)
-                let adjustedExp = currentLevel * Math.pow(currentLevel - 3, 1.5);
+                let currentLevel = hardware.cols - 1;
+                // Level 5: adj=5 (Cost 488), Level 6: adj=7.8 (Cost 6.4k)
+                let adjustedExp = currentLevel + Math.pow(currentLevel - 3, 1.5);
                 return new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
             }
 
