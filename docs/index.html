@@ -532,6 +532,8 @@
                         ranks.spark = saveObj.ranks.impulse;
                         ranks.impulse = saveObj.ranks.intuition || 0;
                     }
+                    // 전압 최적화(prob) 누락 시 초기화 (기존 플레이어 호환성)
+                    if (hardware.prob === undefined) hardware.prob = 0;
                     addLog("데이터 로드 완료.");
                 } catch (e) { }
             }
@@ -860,7 +862,7 @@
                         }
 
                         const helpBtn = detailText ? `<button class="help-btn">? <span class="tooltip">${detailText}</span></button>` : '';
-                        html += `<div class="stat-line"><span class="stat-label">[Lv.${m.lv}]</span> ${desc}${helpBtn}</div>`;
+                        html += `<div class="stat-line"><span class="stat-label">[Lv.${m.lv}]</span>${helpBtn} ${desc}</div>`;
                     });
                 }
             } else if (activeSubTab === 'system') {
@@ -872,12 +874,12 @@
                     if (ranks.impulse >= 3) iBonus = ranks.impulse * 2 + 1;
                     let total = sBonus * iBonus;
                     const bonusDetail = `발상 보너스(x${format(sBonus, 2)})와 충동 보너스(x${format(iBonus, 2)})가 결합된 최종 배율입니다.`;
-                    html += `<div class="stat-line"><span class="stat-label">[효과]</span> 최종 생산량 보너스: x${format(total, 3)}<button class="help-btn">? <span class="tooltip">${bonusDetail}</span></button></div>`;
+                    html += `<div class="stat-line"><span class="stat-label">[효과]</span><button class="help-btn">? <span class="tooltip">${bonusDetail}</span></button> 최종 생산량 보너스: x${format(total, 3)}</div>`;
                 }
                 if (ranks.spark >= 6) {
                     let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
                     const comboDetail = `전구 개수의 50%(${threshold}개) 이상이 켜질 때부터 지수적 콤보 보너스가 발생합니다.`;
-                    html += `<div class="stat-line"><span class="stat-label">[효과]</span> 콤보 시너지 임계치: ${threshold}개<button class="help-btn">? <span class="tooltip">${comboDetail}</span></button></div>`;
+                    html += `<div class="stat-line"><span class="stat-label">[효과]</span><button class="help-btn">? <span class="tooltip">${comboDetail}</span></button> 콤보 시너지 임계치: ${threshold}개</div>`;
                 }
                 if (ranks.spark >= 8) {
                     let prob = 50 + (hardware.prob * 2);
