@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>The Infinite Computer: Genesis v2.3</title>
+    <title>Computation-Incremental</title>
     <script src="https://cdn.jsdelivr.net/npm/break_eternity.js"></script>
     <style>
         :root {
@@ -341,77 +341,77 @@
 <body>
 
     <div class="header">
-        <div id="bit-container" class="bits-count">Bits: <span id="bits">0</span></div>
+        <div id="bit-container" class="bits-count">비트: <span id="bits">0</span></div>
         <div style="text-align: right;">
-            [ SYSTEM ONLINE ]<br>
-            Cycle: <span id="cycle-speed">1000</span>ms
+            [ 시스템 온라인 ]<br>
+            사이클: <span id="cycle-speed">1000</span>ms
         </div>
     </div>
 
     <div class="tab-nav">
-        <div class="tab-btn active" onclick="switchTab('main')">MAIN SYSTEM</div>
-        <div class="tab-btn" onclick="switchTab('stats')">CORE STATS</div>
-        <div class="tab-btn" onclick="switchTab('settings')">SETTINGS</div>
+        <div class="tab-btn active" onclick="switchTab('main')">메인 시스템</div>
+        <div class="tab-btn" onclick="switchTab('stats')">핵심 통계</div>
+        <div class="tab-btn" onclick="switchTab('settings')">설정</div>
     </div>
 
     <div id="tab-main" class="tab-content active">
         <div class="panel-container">
             <div class="panel">
                 <div class="section-header">
-                    <h3 style="color: var(--neon); margin:0;">HARDWARE CONTROL</h3>
+                    <h3 style="color: var(--neon); margin:0;">하드웨어 제어</h3>
                     <button class="help-btn" data-tooltip="전구는 매 사이클마다 50% 확률로 켜지며 정보를 생산합니다.">?</button>
                 </div>
 
                 <div id="hw-controls">
                     <button id="btn-rows" class="action-btn hidden" onclick="buyHW('rows')">
                         <span class="rank-title">행 확장 (Rows)</span>
-                        <span id="c-rows" class="cost-text">Cost: 50</span>
-                        <span id="eff-rows" class="effect-info">Rows: 1 -> 2 (Max 4)</span>
+                        <span id="c-rows" class="cost-text">비용: 50</span>
+                        <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
                     </button>
                     <button id="btn-speed" class="action-btn hidden" onclick="buyHW('speed')">
                         <span class="rank-title">클럭 가속 (Overclock)</span>
-                        <span id="c-speed" class="cost-text">Cost: 10</span>
-                        <span id="eff-speed" class="effect-info">Delay: 1000ms -> 900ms</span>
+                        <span id="c-speed" class="cost-text">비용: 10</span>
+                        <span id="eff-speed" class="effect-info">지연시간: 1000ms -> 900ms</span>
                     </button>
                     <button id="btn-cols" class="action-btn hidden" onclick="buyHW('cols')">
                         <span class="rank-title">열 확장 (Cols)</span>
-                        <span id="c-cols" class="cost-text">Cost: 5</span>
-                        <span id="eff-cols" class="effect-info">Cols: 1 -> 2 (Max 4)</span>
+                        <span id="c-cols" class="cost-text">비용: 5</span>
+                        <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
                     </button>
                 </div>
             </div>
 
             <div class="panel">
                 <div class="section-header">
-                    <h3 style="color: var(--neon); margin:0;">COGNITIVE STEPS</h3>
+                    <h3 style="color: var(--neon); margin:0;">인지 단계</h3>
                     <button class="help-btn" data-tooltip="상위 단계 진입 시 하위 단계 자원을 소모합니다.">?</button>
                 </div>
 
                 <div id="rank-controls">
-                    <button id="btn-impulse" class="action-btn" onclick="rankUp('impulse')">
-                        <span class="rank-title">Impulse Lv.<span id="lv-impulse">0</span></span>
-                        <span id="c-impulse" class="cost-text">Cost: 5 Bits</span>
-                        <div id="ms-impulse" class="milestones"></div>
+                    <button id="btn-spark" class="action-btn" onclick="rankUp('spark')">
+                        <span class="rank-title">발상 Lv.<span id="lv-spark">0</span></span>
+                        <span id="c-spark" class="cost-text">비용: 5 비트</span>
+                        <div id="ms-spark" class="milestones"></div>
                     </button>
-                    <button id="btn-intuition" class="action-btn hidden" onclick="rankUp('intuition')">
-                        <span class="rank-title">Intuition Lv.<span id="lv-intuition">0</span></span>
-                        <span id="c-intuition" class="cost-text">Req: Impulse Lv.4</span>
-                        <div id="ms-intuition" class="milestones"></div>
+                    <button id="btn-impulse" class="action-btn hidden" onclick="rankUp('impulse')">
+                        <span class="rank-title">충동 Lv.<span id="lv-impulse">0</span></span>
+                        <span id="c-impulse" class="cost-text">필요: 발상 Lv.4</span>
+                        <div id="ms-impulse" class="milestones"></div>
                     </button>
                 </div>
             </div>
         </div>
 
         <div id="circuit-area">
-            <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">ACTIVE CIRCUIT MAP</h3>
-            <div id="bulb-grid" style="color: #444; font-size: 12px;">Initializing...</div>
+            <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">활성 회로 맵</h3>
+            <div id="bulb-grid" style="color: #444; font-size: 12px;">초기화 중...</div>
         </div>
     </div>
 
     <div id="tab-stats" class="tab-content container">
         <div class="panel" style="grid-column: span 2;">
             <div class="section-header">
-                <h3 style="color: var(--neon); margin:0;">ACTIVE EFFECTS LOG</h3>
+                <h3 style="color: var(--neon); margin:0;">활성 효과 로그</h3>
             </div>
             <div id="stats-list"></div>
         </div>
@@ -420,10 +420,10 @@
     <div id="tab-settings" class="tab-content container">
         <div class="panel" style="grid-column: span 2;">
             <div class="setting-group">
-                <div class="setting-title">DATA MANAGEMENT</div>
-                <button class="setting-btn" onclick="saveGame(true)">Force Save</button>
-                <button class="setting-btn" onclick="resetGame()" style="color: #f88; border-color: #522;">HARD
-                    RESET</button>
+                <div class="setting-title">데이터 관리</div>
+                <button class="setting-btn" onclick="saveGame(true)">강제 저장</button>
+                <button class="setting-btn" onclick="resetGame()" style="color: #f88; border-color: #522;">전체
+                    초기화</button>
             </div>
         </div>
     </div>
@@ -433,7 +433,7 @@
     <script>
         let bits = new Decimal(0);
         let hardware = { rows: 1, cols: 1, speed: 0 };
-        let ranks = { impulse: 0, intuition: 0 };
+        let ranks = { spark: 0, impulse: 0 };
         let rankData = null; // JSON에서 로드됨
 
         // rankData.json 파일에서 cognitive step 데이터 로드
@@ -473,6 +473,11 @@
                     bits = new Decimal(saveObj.bits);
                     hardware = saveObj.hardware;
                     ranks = saveObj.ranks;
+                    // 호환성을 위한 예외 처리 (이전 버전에서 impulse/intuition이었을 경우)
+                    if (saveObj.ranks.impulse !== undefined && saveObj.ranks.spark === undefined) {
+                        ranks.spark = saveObj.ranks.impulse;
+                        ranks.impulse = saveObj.ranks.intuition || 0;
+                    }
                     addLog("데이터 로드 완료.");
                 } catch (e) { }
             }
@@ -485,11 +490,11 @@
             }
         }
 
-        // 최대 가로 크기 계산 (기본 4, Impulse 5+ 레벨마다 +1)
+        // 최대 가로 크기 계산 (기본 4, 발상 5+ 레벨마다 +1)
         function getMaxCols() {
             let baseMax = 4;
-            if (ranks.impulse >= 5) {
-                return Math.min(baseMax + (ranks.impulse - 4), 8);
+            if (ranks.spark >= 5) {
+                return Math.min(baseMax + (ranks.spark - 4), 8);
             }
             return baseMax;
         }
@@ -499,7 +504,7 @@
             let exp = { rows: 3.5, cols: 2.5, speed: 1.6 }[type];
             let lv = type === 'speed' ? hardware.speed : (type === 'rows' ? hardware.rows - 1 : hardware.cols - 1);
 
-            if (ranks.impulse >= 3) exp = 1 + (exp - 1) * 0.8;
+            if (ranks.spark >= 3) exp = 1 + (exp - 1) * 0.8;
 
             // 행(rows) 스케일링 가속 (Level 1부터 적용)
             if (type === 'rows') {
@@ -521,9 +526,9 @@
         };
 
         const getRankCost = (id) => {
-            if (id === 'intuition') return 0;
-            if (id === 'impulse') {
-                let exponent = Math.pow(ranks.impulse, 7 / 6);
+            if (id === 'impulse') return 0; // 필요 Spark 레벨로 계산됨
+            if (id === 'spark') {
+                let exponent = Math.pow(ranks.spark, 7 / 6);
                 return Decimal.pow(2.5, exponent).times(5).floor();
             }
             return new Decimal(rankData[id].baseCost).times(Decimal.pow(rankData[id].scale, ranks[id])).floor();
@@ -543,7 +548,7 @@
             // 세로 최대치: 4
             if (type === 'rows' && hardware.rows >= 4) return;
 
-            // 가로 최대치: 기본 4, Impulse 5+ 레벨마다 +1
+            // 가로 최대치: 기본 4, 발상 5+ 레벨마다 +1
             if (type === 'cols' && hardware.cols >= getMaxCols()) return;
 
             let cost = getHWCost(type);
@@ -557,24 +562,24 @@
         }
 
         window.rankUp = function (id) {
-            if (id === 'impulse') {
+            if (id === 'spark') {
                 let cost = getRankCost(id);
                 if (bits.lt(cost)) return;
 
                 bits = new Decimal(0);
-                ranks.impulse++;
+                ranks.spark++;
                 hardware = { rows: 1, cols: 1, speed: 0 };
-                addLog(`Impulse Lv.${ranks.impulse}: 사고 확장.`);
+                addLog(`발상 Lv.${ranks.spark}: 사고 확장.`);
             }
-            else if (id === 'intuition') {
-                let req = 4 + (ranks.intuition * 2);
-                if (ranks.impulse < req) return;
+            else if (id === 'impulse') {
+                let req = Math.pow(ranks.impulse + 2, 2);
+                if (ranks.spark < req) return;
 
-                ranks.intuition++;
-                ranks.impulse = 0;
+                ranks.impulse++;
+                ranks.spark = 0;
                 bits = new Decimal(0);
                 hardware = { rows: 1, cols: 1, speed: 0 };
-                addLog(`Intuition Lv.${ranks.intuition}: 상위 차원 진입.`);
+                addLog(`충동 Lv.${ranks.impulse}: 상위 차원 진입.`);
             }
             initGrid();
             updateUI();
@@ -606,7 +611,7 @@
 
         function processTick() {
             let prob = 50;
-            if (ranks.intuition >= 3) prob += 10;
+            if (ranks.impulse >= 3) prob += 10;
 
             let onCount = 0;
             let total = hardware.rows * hardware.cols;
@@ -616,15 +621,15 @@
 
             if (onCount > 0) {
                 let baseBonus = 0;
-                if (ranks.impulse >= 4) {
-                    baseBonus = (ranks.impulse + ranks.intuition) * 0.5;
+                if (ranks.spark >= 4) {
+                    baseBonus = (ranks.spark + ranks.impulse) * 0.5;
                 }
 
                 let yieldMult = new Decimal(1).plus(baseBonus);
-                if (ranks.impulse >= 5) yieldMult = yieldMult.times(2);
+                if (ranks.spark >= 5) yieldMult = yieldMult.times(2);
 
                 let comboMult = new Decimal(1);
-                if (ranks.intuition >= 2) {
+                if (ranks.impulse >= 2) {
                     // 개선된 콤보 보너스: 로그 기반으로 완만한 증가
                     // 작은 콤보(1-5): 약간의 보너스, 큰 콤보(10+): 로그 스케일로 완만하게 증가
                     if (onCount <= 5) {
@@ -643,50 +648,50 @@
 
         function updateUI() {
             document.getElementById('bits').innerText = bits.floor().toString();
+            document.getElementById('lv-spark').innerText = ranks.spark;
             document.getElementById('lv-impulse').innerText = ranks.impulse;
-            document.getElementById('lv-intuition').innerText = ranks.intuition;
 
-            updateBtn('btn-impulse', getRankCost('impulse'), '');
+            updateBtn('btn-spark', getRankCost('spark'), '');
 
-            const intBtn = document.getElementById('btn-intuition');
-            const reqImpulse = 4 + (ranks.intuition * 2);
-            intBtn.querySelector('.cost-text').innerText = `Req: Impulse Lv.${reqImpulse}`;
-            if (ranks.impulse >= reqImpulse) intBtn.classList.add('affordable');
-            else intBtn.classList.remove('affordable');
-            intBtn.disabled = ranks.impulse < reqImpulse;
+            const impBtn = document.getElementById('btn-impulse');
+            const reqSpark = Math.pow(ranks.impulse + 2, 2);
+            impBtn.querySelector('.cost-text').innerText = `필요: 발상 Lv.${reqSpark}`;
+            if (ranks.spark >= reqSpark) impBtn.classList.add('affordable');
+            else impBtn.classList.remove('affordable');
+            impBtn.disabled = ranks.spark < reqSpark;
 
             // 하드웨어 버튼 해금 조건 변경
-            // 열 확장(cols)은 Impulse 1 이상
-            if (ranks.impulse >= 1) {
+            // 열 확장(cols)은 발상 1 이상
+            if (ranks.spark >= 1) {
                 document.getElementById('btn-cols').classList.remove('hidden');
             } else {
                 document.getElementById('btn-cols').classList.add('hidden');
             }
 
-            // 클럭 가속은 Impulse 2 이상 유지
-            if (ranks.impulse >= 2) {
+            // 클럭 가속은 발상 2 이상 유지
+            if (ranks.spark >= 2) {
                 document.getElementById('btn-speed').classList.remove('hidden');
             } else {
                 document.getElementById('btn-speed').classList.add('hidden');
             }
 
-            // 행 확장(rows)은 Intuition 1 이상
-            if (ranks.intuition >= 1) document.getElementById('btn-rows').classList.remove('hidden');
+            // 행 확장(rows)은 충동 1 이상
+            if (ranks.impulse >= 1) document.getElementById('btn-rows').classList.remove('hidden');
             else document.getElementById('btn-rows').classList.add('hidden');
 
-            // Intuition 버튼: Impulse 4 이상이거나, 이미 Intuition을 한 번이라도 올렸다면 표시
-            if (ranks.impulse >= 4 || ranks.intuition > 0) document.getElementById('btn-intuition').classList.remove('hidden');
-            else document.getElementById('btn-intuition').classList.add('hidden');
+            // 충동 버튼: 발상 4 이상이거나, 이미 충동을 한 번이라도 올렸다면 표시
+            if (ranks.spark >= 4 || ranks.impulse > 0) document.getElementById('btn-impulse').classList.remove('hidden');
+            else document.getElementById('btn-impulse').classList.add('hidden');
 
             updateHWBtn('btn-rows', 'rows');
             updateHWBtn('btn-cols', 'cols');
-            updateBtn('btn-speed', getHWCost('speed'), `Delay: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`);
+            updateBtn('btn-speed', getHWCost('speed'), `지연시간: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`);
 
             if (bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
             else document.getElementById('bit-container').classList.remove('affordable');
 
+            updateMilestones('spark');
             updateMilestones('impulse');
-            updateMilestones('intuition');
         }
 
         function updateHWBtn(id, type) {
@@ -694,13 +699,13 @@
             let maxVal = type === 'cols' ? getMaxCols() : 4;
 
             if (hardware[type] >= maxVal) {
-                btn.querySelector('.rank-title').innerText = type === 'cols' ? "열 확장 (MAX)" : "행 확장 (MAX)";
-                btn.querySelector('.cost-text').innerText = "MAX";
-                btn.querySelector('.effect-info').innerText = "Limit Reached";
+                btn.querySelector('.rank-title').innerText = type === 'cols' ? "열 확장 (최대)" : "행 확장 (최대)";
+                btn.querySelector('.cost-text').innerText = "최대";
+                btn.querySelector('.effect-info').innerText = "제한 도달";
                 btn.classList.remove('affordable');
                 btn.disabled = true;
             } else {
-                updateBtn(id, getHWCost(type), `${type === 'rows' ? 'Rows' : 'Cols'}: ${hardware[type]} -> ${hardware[type] + 1} (Max ${maxVal})`);
+                updateBtn(id, getHWCost(type), `${type === 'rows' ? '행' : '열'}: ${hardware[type]} -> ${hardware[type] + 1} (최대 ${maxVal})`);
             }
         }
 
@@ -710,7 +715,7 @@
 
             const costEl = btn.querySelector('.cost-text');
             const effEl = btn.querySelector('.effect-info');
-            if (costEl) costEl.innerText = `Cost: ${cost.toString()}`;
+            if (costEl) costEl.innerText = `비용: ${cost.toString()}`;
             if (effEl) effEl.innerText = effectText;
 
             if (bits.gte(cost)) btn.classList.add('affordable');
@@ -733,7 +738,7 @@
         function renderStats() {
             const list = document.getElementById('stats-list');
             let html = '';
-            ['impulse', 'intuition'].forEach(type => {
+            ['spark', 'impulse'].forEach(type => {
                 const curLv = ranks[type];
                 if (curLv === 0) return;
                 const activeMs = rankData[type].ms.filter(m => m.lv <= curLv);
@@ -743,13 +748,13 @@
                     html += `<div class="stat-line"><span class="stat-label">[${rankData[type].name} Lv.${m.lv}]</span> ${m.desc}${helpBtn}</div>`;
                 });
             });
-            if (ranks.impulse >= 4) {
-                let bonus = (ranks.impulse + ranks.intuition) * 0.5 * 100;
-                const bonusDetail = "기본 생산량이 (Impulse 레벨 + Intuition 레벨) × 50%만큼 증가합니다. 예: Impulse 5, Intuition 2일 때 +350% 보너스를 받습니다.";
-                html += `<div class="stat-line"><span class="stat-label">[Effect]</span> Base Production Bonus: +${bonus}%<button class="help-btn" data-tooltip="${bonusDetail}" style="display: inline-block;">?</button></div>`;
+            if (ranks.spark >= 4) {
+                let bonus = (ranks.spark + ranks.impulse) * 0.5 * 100;
+                const bonusDetail = "기본 생산량이 (발상 레벨 + 충동 레벨) × 50%만큼 증가합니다. 예: 발상 5, 충동 2일 때 +350% 보너스를 받습니다.";
+                html += `<div class="stat-line"><span class="stat-label">[효과]</span> 기본 생산량 보너스: +${bonus}%<button class="help-btn" data-tooltip="${bonusDetail}" style="display: inline-block;">?</button></div>`;
             }
 
-            if (html === '') html = '<div style="padding:10px; color:#666;">No active effects.</div>';
+            if (html === '') html = '<div style="padding:10px; color:#666;">활성화된 효과가 없습니다.</div>';
             list.innerHTML = html;
         }
 
