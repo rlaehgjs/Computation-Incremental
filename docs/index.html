@@ -335,6 +335,36 @@
             margin-bottom: 10px;
             font-weight: bold;
         }
+
+        .sub-tab-nav {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+
+        .sub-tab-btn {
+            background: #111;
+            border: 1px solid #333;
+            color: #666;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+
+        .sub-tab-btn:hover {
+            color: #aaa;
+            border-color: #555;
+        }
+
+        .sub-tab-btn.active {
+            background: #222;
+            color: var(--neon);
+            border-color: var(--neon);
+        }
     </style>
 </head>
 
@@ -411,7 +441,12 @@
     <div id="tab-stats" class="tab-content container">
         <div class="panel" style="grid-column: span 2;">
             <div class="section-header">
-                <h3 style="color: var(--neon); margin:0;">활성 효과 로그</h3>
+                <h3 style="color: var(--neon); margin:0;">효과 디렉토리</h3>
+            </div>
+            <div class="sub-tab-nav">
+                <button class="sub-tab-btn active" onclick="switchSubTab('spark')">발상</button>
+                <button class="sub-tab-btn" onclick="switchSubTab('impulse')">충동</button>
+                <button class="sub-tab-btn" onclick="switchSubTab('system')">시스템</button>
             </div>
             <div id="stats-list"></div>
         </div>
@@ -435,6 +470,15 @@
         let hardware = { rows: 1, cols: 1, speed: 0 };
         let ranks = { spark: 0, impulse: 0 };
         let rankData = null; // JSON에서 로드됨
+        let activeSubTab = 'spark';
+
+        function format(value, places = 3) {
+            let d = new Decimal(value);
+            if (d.lt(1e6)) {
+                return d.floor().toString();
+            }
+            return d.toExponential(places).replace("+", "");
+        }
 
         // rankData.json 파일에서 cognitive step 데이터 로드
         async function loadRankData() {
@@ -544,6 +588,18 @@
             if (tabName === 'stats') renderStats();
         }
 
+        window.switchSubTab = function (subTabId) {
+            activeSubTab = subTabId;
+            document.querySelectorAll('.sub-tab-btn').forEach(btn => {
+                if (btn.innerText === (subTabId === 'spark' ? '발상' : (subTabId === 'impulse' ? '충동' : '시스템'))) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            renderStats();
+        }
+
         window.buyHW = function (type) {
             // 세로 최대치: 4
             if (type === 'rows' && hardware.rows >= 4) return;
@@ -620,25 +676,23 @@
             }
 
             if (onCount > 0) {
-                let baseBonus = 0;
+                let baseBonus = new Decimal(1);
                 if (ranks.spark >= 4) {
-                    baseBonus = (ranks.spark + ranks.impulse) * 0.5;
+                    baseBonus = new Decimal(ranks.spark * 0.5 + 1).times(ranks.impulse * 1 + 1);
                 }
 
-                let yieldMult = new Decimal(1).plus(baseBonus);
+                let yieldMult = baseBonus;
                 if (ranks.spark >= 5) yieldMult = yieldMult.times(2);
 
                 let comboMult = new Decimal(1);
                 if (ranks.impulse >= 2) {
-                    // 개선된 콤보 보너스: 로그 기반으로 완만한 증가
-                    // 작은 콤보(1-5): 약간의 보너스, 큰 콤보(10+): 로그 스케일로 완만하게 증가
-                    if (onCount <= 5) {
-                        // 작은 콤보는 선형 보너스 (최대 1.5배)
-                        comboMult = new Decimal(1).plus(onCount * 0.1);
-                    } else {
-                        // 큰 콤보는 로그 기반 보너스 (최대 약 3-4배 정도)
-                        let logBonus = Math.log(onCount) / Math.log(5); // log5(onCount)
-                        comboMult = new Decimal(1).plus(logBonus * 0.5);
+                    let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
+                    if (onCount > threshold) {
+                        let bonusRaw = 1 + 1.2 ** (onCount - threshold);
+                        if (bonusRaw > 100) {
+                            bonusRaw = 100 + Math.pow(bonusRaw - 100, 0.5);
+                        }
+                        comboMult = new Decimal(bonusRaw);
                     }
                 }
 
@@ -647,7 +701,7 @@
         }
 
         function updateUI() {
-            document.getElementById('bits').innerText = bits.floor().toString();
+            document.getElementById('bits').innerText = format(bits.floor());
             document.getElementById('lv-spark').innerText = ranks.spark;
             document.getElementById('lv-impulse').innerText = ranks.impulse;
 
@@ -715,7 +769,7 @@
 
             const costEl = btn.querySelector('.cost-text');
             const effEl = btn.querySelector('.effect-info');
-            if (costEl) costEl.innerText = `비용: ${cost.toString()}`;
+            if (costEl) costEl.innerText = `비용: ${format(cost)}`;
             if (effEl) effEl.innerText = effectText;
 
             if (bits.gte(cost)) btn.classList.add('affordable');
@@ -738,23 +792,45 @@
         function renderStats() {
             const list = document.getElementById('stats-list');
             let html = '';
-            ['spark', 'impulse'].forEach(type => {
+
+            if (activeSubTab === 'spark' || activeSubTab === 'impulse') {
+                const type = activeSubTab;
                 const curLv = ranks[type];
-                if (curLv === 0) return;
-                const activeMs = rankData[type].ms.filter(m => m.lv <= curLv);
-                activeMs.forEach(m => {
-                    const detailText = m.detail || '';
-                    const helpBtn = detailText ? `<button class="help-btn" data-tooltip="${detailText.replace(/"/g, '&quot;')}" style="display: inline-block;">?</button>` : '';
-                    html += `<div class="stat-line"><span class="stat-label">[${rankData[type].name} Lv.${m.lv}]</span> ${m.desc}${helpBtn}</div>`;
-                });
-            });
-            if (ranks.spark >= 4) {
-                let bonus = (ranks.spark + ranks.impulse) * 0.5 * 100;
-                const bonusDetail = "기본 생산량이 (발상 레벨 + 충동 레벨) × 50%만큼 증가합니다. 예: 발상 5, 충동 2일 때 +350% 보너스를 받습니다.";
-                html += `<div class="stat-line"><span class="stat-label">[효과]</span> 기본 생산량 보너스: +${bonus}%<button class="help-btn" data-tooltip="${bonusDetail}" style="display: inline-block;">?</button></div>`;
+                if (curLv > 0) {
+                    const activeMs = rankData[type].ms.filter(m => m.lv <= curLv);
+                    activeMs.forEach(m => {
+                        let desc = m.desc;
+                        let detailText = m.detail || '';
+
+                        // Dynamic descriptions
+                        if (type === 'spark' && m.lv === 4) {
+                            let sBonus = ranks.spark * 0.5 + 1;
+                            let iBonus = ranks.impulse * 1 + 1;
+                            let total = sBonus * iBonus;
+                            detailText += `<br><br><b>현재 상태:</b><br>최종 보너스: x${format(total, 3)}<br>(발상: x${sBonus.toFixed(1)} * 충동: x${iBonus.toFixed(1)})`;
+                        }
+
+                        const helpBtn = detailText ? `<button class="help-btn" data-tooltip="${detailText.replace(/"/g, '&quot;')}" style="display: inline-block;">?</button>` : '';
+                        html += `<div class="stat-line"><span class="stat-label">[Lv.${m.lv}]</span> ${desc}${helpBtn}</div>`;
+                    });
+                }
+            } else if (activeSubTab === 'system') {
+                // System/General stats
+                if (ranks.spark >= 4) {
+                    let sBonus = ranks.spark * 0.5 + 1;
+                    let iBonus = ranks.impulse * 1 + 1;
+                    let total = sBonus * iBonus;
+                    const bonusDetail = `기본 생산량이 (발상 레벨 * 0.5 + 1) × (충동 레벨 * 1 + 1)만큼 곱연산됩니다.<br>현재: x${sBonus.toFixed(1)} * x${iBonus.toFixed(1)} = x${format(total, 3)}`;
+                    html += `<div class="stat-line"><span class="stat-label">[효과]</span> 기본 생산량 보너스: x${format(total, 3)}<button class="help-btn" data-tooltip="${bonusDetail}" style="display: inline-block;">?</button></div>`;
+                }
+                if (ranks.impulse >= 2) {
+                    let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
+                    const comboDetail = `전구 개수의 50%(${threshold}개) 이상이 켜질 때부터 추가 보너스가 발생합니다.`;
+                    html += `<div class="stat-line"><span class="stat-label">[효과]</span> 콤보 시너지 임계치: ${threshold}개<button class="help-btn" data-tooltip="${comboDetail}" style="display: inline-block;">?</button></div>`;
+                }
             }
 
-            if (html === '') html = '<div style="padding:10px; color:#666;">활성화된 효과가 없습니다.</div>';
+            if (html === '') html = '<div style="padding:10px; color:#666;">해당 카테고리에 활성화된 효과가 없습니다.</div>';
             list.innerHTML = html;
         }
 
