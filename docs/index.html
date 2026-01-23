@@ -118,13 +118,13 @@
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             font-size: 12px;
             position: relative;
             vertical-align: middle;
-            margin-left: 6px;
+            flex-shrink: 0;
         }
 
         .help-btn .tooltip {
@@ -305,12 +305,15 @@
             padding: 8px;
             border-bottom: 1px solid #222;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .stat-label {
             color: var(--neon);
             font-weight: bold;
-            margin-right: 10px;
+            white-space: nowrap;
         }
 
         .setting-btn {
