@@ -467,6 +467,104 @@
             background: transparent;
             box-shadow: 0 0 10px #fff;
         }
+
+        /* 챕터 타이틀 연출 스타일 */
+        #chapter-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s;
+        }
+
+        #chapter-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .chapter-bulb-icon {
+            width: 80px;
+            height: 80px;
+            fill: var(--neon);
+            filter: drop-shadow(0 0 10px var(--neon));
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .chapter-bulb-icon.animate {
+            animation: fadeInRise 1s forwards 0.5s;
+        }
+
+        #chapter-main-text {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--white);
+            letter-spacing: 15px;
+            margin: 0;
+            transform: scaleX(0);
+            transform-origin: center;
+            white-space: nowrap;
+        }
+
+        #chapter-main-text.animate {
+            animation: expandHorizontal 1.2s cubic-bezier(0.87, 0, 0.13, 1) forwards 1s;
+        }
+
+        #chapter-sub-text {
+            font-size: 20px;
+            color: var(--neon);
+            margin-top: 15px;
+            opacity: 0;
+            letter-spacing: 8px;
+        }
+
+        #chapter-sub-text.animate {
+            animation: fadeInLetterSpacing 1.5s ease-out forwards 2s;
+        }
+
+        @keyframes expandHorizontal {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes fadeInRise {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLetterSpacing {
+            from {
+                opacity: 0;
+                letter-spacing: 25px;
+            }
+
+            to {
+                opacity: 1;
+                letter-spacing: 8px;
+            }
+        }
     </style>
 </head>
 
@@ -482,6 +580,15 @@
             <button id="cutscene-next" class="cutscene-btn" onclick="nextCutscene()">다음</button>
             <button class="cutscene-btn skip-btn" onclick="skipCutscene()">스토리 스킵</button>
         </div>
+    </div>
+
+    <div id="chapter-overlay">
+        <svg class="chapter-bulb-icon" viewBox="0 0 24 24">
+            <path
+                d="M12,2A7,7,0,0,0,5,9c0,2.38,1.19,4.47,3,5.74V17a1,1,0,0,0,1,1h6a1,1,0,0,0,1-1V14.74c1.81-1.27,3-3.36,3-5.74A7,7,0,0,0,12,2Zm2,14H10V14.15l1-0.7c1.33-0.93,1.33-0.93,1.33-2.45h1.34c0,1.52,0,1.52,1.33,2.45l1,0.7V16ZM11.33,9h1.34V12H11.33V9ZM15,19H9v1a1,1,0,0,0,1,1h4a1,1,0,0,0,1-1V19Z" />
+        </svg>
+        <h1 id="chapter-main-text">CHAPTER 1</h1>
+        <div id="chapter-sub-text">모든 것의 시작</div>
     </div>
 
     <div class="header">
@@ -595,10 +702,10 @@
         // 스토리 컷신 데이터
         const storyData = {
             intro: [
-                { img: 'assets/images/cutscenes/1-1-NW.png', text: '시스템이 깨어납니다... (테스트 텍스트 1)' },
-                { img: 'assets/images/cutscenes/1-2-NW.png', text: '알 수 없는 노이즈가 회로를 타고 흐릅니다. (테스트 텍스트 2)' },
-                { img: 'assets/images/cutscenes/1-3-NW.png', text: '사고의 단편들이 연결되기 시작합니다. (테스트 텍스트 3)' },
-                { img: 'assets/images/cutscenes/1-4-NW.png', text: '이제, 연산이 시작됩니다. (테스트 텍스트 4)' }
+                { img: 'assets/images/cutscenes/1-1-NW.png', text: '졸업장은 냄비 받침으로 쓴 지 오래다. 멍청한 상사, 의미 없는 회의... 그런 건 내 알 바 아니다. 나에겐 이 고철들이 더 대하기 편하니까.' },
+                { img: 'assets/images/cutscenes/1-2-NW.png', text: '하지만 천재도 밥은 먹어야 한다. 월세 낼 날짜는 다가오고, 남은 건 창고 가득한 재고 부품들 뿐.' },
+                { img: 'assets/images/cutscenes/1-3-NW.png', text: '팔아서 돈을 만들 수 없다면, 만들어서 돈을 벌게 하면 된다. 기존의 컴퓨터 구조는 너무 비효율적이야. 내가 직접 설계한다. 이론상 완벽한, 무한 연산기를.' },
+                { img: 'assets/images/cutscenes/1-4-NW.png', text: '시스템 가동. ...시작해 볼까?' }
             ]
         };
 
@@ -643,13 +750,36 @@
 
         window.skipCutscene = function () {
             document.getElementById('cutscene-overlay').classList.add('hidden');
-            isGamePaused = false;
-            // 게임 루프가 아직 돌지 않고 있다면(최초 실행) 시작
-            if (!gameLoopStarted) {
-                gameLoopStarted = true;
-                gameLoop();
-            }
-            saveGame();
+            playChapterAnimation();
+        }
+
+        window.playChapterAnimation = function () {
+            const overlay = document.getElementById('chapter-overlay');
+            const bulb = overlay.querySelector('.chapter-bulb-icon');
+            const mainText = document.getElementById('chapter-main-text');
+            const subText = document.getElementById('chapter-sub-text');
+
+            overlay.classList.add('active');
+            bulb.classList.add('animate');
+            mainText.classList.add('animate');
+            subText.classList.add('animate');
+
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                // 애니메이션 클래스 제거 (나중에 다시 볼 때를 위해)
+                setTimeout(() => {
+                    bulb.classList.remove('animate');
+                    mainText.classList.remove('animate');
+                    subText.classList.remove('animate');
+
+                    isGamePaused = false;
+                    if (!gameLoopStarted) {
+                        gameLoopStarted = true;
+                        gameLoop();
+                    }
+                    saveGame();
+                }, 1000);
+            }, 5000); // 5초 동안 노출
         }
 
         function format(value, places = 3) {
