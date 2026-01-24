@@ -901,12 +901,9 @@
             if (id === 'impulse') return 0; // 필요 Spark 레벨로 계산됨
             if (id === 'spark') {
                 let scalingMult = 1.0;
-                if (ranks.impulse >= 2) scalingMult = 0.8;
+                if (ranks.impulse >= 1) scalingMult = 0.8;
                 let exponent = Math.pow(ranks.spark, 1 + (1 / 6) * scalingMult);
                 let baseCost = Decimal.pow(2.5, exponent).times(5);
-
-                // Impulse Lv.1: Spark cost * 0.75
-                if (ranks.impulse >= 1) baseCost = baseCost.times(0.75);
 
                 return baseCost.floor();
             }
@@ -974,7 +971,7 @@
                 ranks.spark = 0;
                 bits = new Decimal(0);
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
-                addLog(`충동 Lv.${ranks.impulse}: 상위 차원 진입.`);
+                addLog(`충동 Lv.${ranks.impulse}: 충동 단계 승급.`);
             }
             initGrid();
             updateUI();
@@ -1022,14 +1019,15 @@
                 // 발상 5레벨 보너스
                 if (ranks.spark >= 5) {
                     let sBonus = ranks.spark * 0.5 + 1;
-                    // 발상 10레벨 제곱 보너스
-                    if (ranks.spark >= 10) sBonus = sBonus ** 2;
-                    formulaBonus = new Decimal(sBonus);
-                }
 
-                // 충동 3레벨 보너스
-                if (ranks.impulse >= 3) {
-                    formulaBonus = formulaBonus.times(ranks.impulse * 2 + 1);
+                    // 충동 2레벨: 발상 보너스 제곱 & 충동 비례 보너스
+                    if (ranks.impulse >= 2) {
+                        sBonus = sBonus ** 2;
+                        let iBonus = ranks.impulse * 2 + 1;
+                        sBonus *= iBonus;
+                    }
+
+                    formulaBonus = new Decimal(sBonus);
                 }
 
                 let yieldMult = formulaBonus;
@@ -1164,10 +1162,10 @@
                         // Dynamic descriptions
                         if (type === 'spark' && m.lv === 5) {
                             let sBonus = ranks.spark * 0.5 + 1;
-                            if (ranks.spark >= 10) sBonus = sBonus ** 2;
+                            if (ranks.impulse >= 2) sBonus = sBonus ** 2;
                             detailText += `<br><br><b>현재 보너스:</b> x${format(sBonus, 3)}`;
                         }
-                        if (type === 'impulse' && m.lv === 3) {
+                        if (type === 'impulse' && m.lv === 2) {
                             let iBonus = ranks.impulse * 2 + 1;
                             detailText += `<br><br><b>현재 보너스:</b> x${format(iBonus, 3)}`;
                         }
@@ -1180,9 +1178,13 @@
                 // System/General stats
                 if (ranks.spark >= 5) {
                     let sBonus = ranks.spark * 0.5 + 1;
-                    if (ranks.spark >= 10) sBonus = sBonus ** 2;
                     let iBonus = 1;
-                    if (ranks.impulse >= 3) iBonus = ranks.impulse * 2 + 1;
+
+                    if (ranks.impulse >= 2) {
+                        sBonus = sBonus ** 2;
+                        iBonus = ranks.impulse * 2 + 1;
+                    }
+
                     let total = sBonus * iBonus;
                     const bonusDetail = `발상 보너스(x${format(sBonus, 2)})와 충동 보너스(x${format(iBonus, 2)})가 결합된 최종 배율입니다.`;
                     html += `<div class="stat-line"><span class="stat-label">[효과]</span><button class="help-btn">? <span class="tooltip">${bonusDetail}</span></button> 최종 생산량 보너스: x${format(total, 3)}</div>`;
