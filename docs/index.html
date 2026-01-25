@@ -615,14 +615,16 @@
             <div id="hw-controls">
                 <!-- 행 확장 (Rows) -->
                 <div id="btn-group-rows" class="hidden">
-                    <div class="hw-btn-container" style="display: flex; gap: 5px; margin-bottom: 12px;">
-                        <button id="btn-rows" class="action-btn" onclick="buyHW('rows')" style="flex: 1; margin: 0;">
+                    <div class="hw-btn-container"
+                        style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
+                        <button id="btn-rows" class="action-btn" onclick="buyHW('rows')"
+                            style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none;">
                             <span class="rank-title">행 확장 (Rows)</span>
                             <span id="c-rows" class="cost-text">비용: 50</span>
                             <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
                         </button>
                         <button id="btn-rows-max" class="action-btn max-btn hidden" onclick="buyHWMax('rows')"
-                            style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2;">
+                            style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px dashed #444;">
                             <span class="max-count">Max +0</span>
                             <span class="max-cost" style="color: #aaa;">0</span>
                         </button>
@@ -631,14 +633,16 @@
 
                 <!-- 클럭 가속 (Speed) -->
                 <div id="btn-group-speed" class="hidden">
-                    <div class="hw-btn-container" style="display: flex; gap: 5px; margin-bottom: 12px;">
-                        <button id="btn-speed" class="action-btn" onclick="buyHW('speed')" style="flex: 1; margin: 0;">
+                    <div class="hw-btn-container"
+                        style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
+                        <button id="btn-speed" class="action-btn" onclick="buyHW('speed')"
+                            style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none;">
                             <span class="rank-title">클럭 가속 (Overclock)</span>
                             <span id="c-speed" class="cost-text">비용: 10</span>
                             <span id="eff-speed" class="effect-info">지연시간: 1000ms -> 900ms</span>
                         </button>
                         <button id="btn-speed-max" class="action-btn max-btn hidden" onclick="buyHWMax('speed')"
-                            style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2;">
+                            style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px dashed #444;">
                             <span class="max-count">Max +0</span>
                             <span class="max-cost" style="color: #aaa;">0</span>
                         </button>
@@ -647,14 +651,16 @@
 
                 <!-- 열 확장 (Cols) -->
                 <div id="btn-group-cols" class="hidden">
-                    <div class="hw-btn-container" style="display: flex; gap: 5px; margin-bottom: 12px;">
-                        <button id="btn-cols" class="action-btn" onclick="buyHW('cols')" style="flex: 1; margin: 0;">
+                    <div class="hw-btn-container"
+                        style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
+                        <button id="btn-cols" class="action-btn" onclick="buyHW('cols')"
+                            style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none;">
                             <span class="rank-title">열 확장 (Cols)</span>
                             <span id="c-cols" class="cost-text">비용: 5</span>
                             <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
                         </button>
                         <button id="btn-cols-max" class="action-btn max-btn hidden" onclick="buyHWMax('cols')"
-                            style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2;">
+                            style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px dashed #444;">
                             <span class="max-count">Max +0</span>
                             <span class="max-cost" style="color: #aaa;">0</span>
                         </button>
