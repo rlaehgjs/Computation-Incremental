@@ -1016,18 +1016,21 @@
 
             if (onCount > 0) {
                 let formulaBonus = new Decimal(1);
+
                 // 발상 5레벨 보너스
                 if (ranks.spark >= 5) {
                     let sBonus = ranks.spark * 0.5 + 1;
-
-                    // 충동 2레벨: 발상 보너스 제곱 & 충동 비례 보너스
+                    // 충동 2레벨: 발상 보너스 제곱
                     if (ranks.impulse >= 2) {
                         sBonus = sBonus ** 2;
-                        let iBonus = ranks.impulse * 2 + 1;
-                        sBonus *= iBonus;
                     }
+                    formulaBonus = formulaBonus.times(sBonus);
+                }
 
-                    formulaBonus = new Decimal(sBonus);
+                // 충동 2레벨: 충동 비례 보너스 (독립 적용)
+                if (ranks.impulse >= 2) {
+                    let iBonus = ranks.impulse * 2 + 1;
+                    formulaBonus = formulaBonus.times(iBonus);
                 }
 
                 let yieldMult = formulaBonus;
@@ -1176,15 +1179,22 @@
                 }
             } else if (activeSubTab === 'system') {
                 // System/General stats
+                let sBonus = 1;
+                let iBonus = 1;
+                let hasBonus = false;
+
                 if (ranks.spark >= 5) {
-                    let sBonus = ranks.spark * 0.5 + 1;
-                    let iBonus = 1;
+                    sBonus = ranks.spark * 0.5 + 1;
+                    if (ranks.impulse >= 2) sBonus = sBonus ** 2;
+                    hasBonus = true;
+                }
 
-                    if (ranks.impulse >= 2) {
-                        sBonus = sBonus ** 2;
-                        iBonus = ranks.impulse * 2 + 1;
-                    }
+                if (ranks.impulse >= 2) {
+                    iBonus = ranks.impulse * 2 + 1;
+                    hasBonus = true;
+                }
 
+                if (hasBonus) {
                     let total = sBonus * iBonus;
                     const bonusDetail = `발상 보너스(x${format(sBonus, 2)})와 충동 보너스(x${format(iBonus, 2)})가 결합된 최종 배율입니다.`;
                     html += `<div class="stat-line"><span class="stat-label">[효과]</span><button class="help-btn">? <span class="tooltip">${bonusDetail}</span></button> 최종 생산량 보너스: x${format(total, 3)}</div>`;
