@@ -862,7 +862,8 @@
             let exp = { rows: 3.5, cols: 2.5, speed: 1.6 }[type];
             let lv = type === 'speed' ? hardware.speed : (type === 'rows' ? hardware.rows - 1 : hardware.cols - 1);
 
-            if (ranks.spark >= 3) exp = 1 + (exp - 1) * 0.8;
+            // 하드웨어 비용 스케일링 감소 (충동 1레벨)
+            if (ranks.impulse >= 1) exp = 1 + (exp - 1) * 0.8;
 
             // 행(rows) 스케일링 가속 (Level 1부터 적용)
             if (type === 'rows') {
@@ -888,6 +889,7 @@
             if (id === 'impulse') return 0; // 필요 Spark 레벨로 계산됨
             if (id === 'spark') {
                 let scalingMult = 1.0;
+                // 발상 비용 스케일링 감소 (충동 1레벨)
                 if (ranks.impulse >= 1) scalingMult = 0.8;
                 let exponent = Math.pow(ranks.spark, 1 + (1 / 6) * scalingMult);
                 let baseCost = Decimal.pow(2.5, exponent).times(5);
@@ -1062,8 +1064,8 @@
             if (ranks.spark >= 2) document.getElementById('btn-speed').classList.remove('hidden');
             else document.getElementById('btn-speed').classList.add('hidden');
 
-            // 행 확장(rows)은 발상 4 이상 (기존 충동 1)
-            if (ranks.spark >= 4) document.getElementById('btn-rows').classList.remove('hidden');
+            // 행 확장(rows)은 발상 3 이상 (기존 발상 4)
+            if (ranks.spark >= 3) document.getElementById('btn-rows').classList.remove('hidden');
             else document.getElementById('btn-rows').classList.add('hidden');
 
 
