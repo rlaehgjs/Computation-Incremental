@@ -629,11 +629,6 @@
                         <span id="c-cols" class="cost-text">비용: 5</span>
                         <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
                     </button>
-                    <button id="btn-prob" class="action-btn hidden" onclick="buyHW('prob')">
-                        <span class="rank-title">전압 최적화 (Voltage)</span>
-                        <span id="c-prob" class="cost-text">비용: 1.000e8</span>
-                        <span id="eff-prob" class="effect-info">점등 확률: 50% -> 51%</span>
-                    </button>
                 </div>
             </div>
 
@@ -885,14 +880,6 @@
                 return new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
             }
 
-            if (type === 'prob') {
-                let base = 1e8;
-                let exp = 50;
-                // Aggressive scaling: base * exp^(lv + lv^1.5)
-                let lv = hardware.prob;
-                let adjustedExp = lv + Math.pow(lv, 1.5);
-                return new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
-            }
 
             return new Decimal(base).times(Decimal.pow(exp, lv)).floor();
         };
@@ -940,8 +927,6 @@
             // 가로 최대치: 기본 4, 발상 5+ 레벨마다 +1
             if (type === 'cols' && hardware.cols >= getMaxCols()) return;
 
-            // 전압 확률 최대치: 95%
-            if (type === 'prob' && 50 + (hardware.prob * 2) >= 95) return;
 
             let cost = getHWCost(type);
             if (bits.gte(cost)) {
@@ -1006,7 +991,7 @@
         }
 
         function processTick() {
-            let prob = 50 + (hardware.prob * 2);
+            let prob = 50;
 
             let onCount = 0;
             let total = hardware.rows * hardware.cols;
@@ -1081,9 +1066,6 @@
             if (ranks.spark >= 4) document.getElementById('btn-rows').classList.remove('hidden');
             else document.getElementById('btn-rows').classList.add('hidden');
 
-            // 전압 최적화(prob)는 발상 8 이상
-            if (ranks.spark >= 8) document.getElementById('btn-prob').classList.remove('hidden');
-            else document.getElementById('btn-prob').classList.add('hidden');
 
             // 충동 버튼: 발상 4 이상이거나, 이미 충동을 한 번이라도 올렸다면 표시
             if (ranks.spark >= 4 || ranks.impulse > 0) document.getElementById('btn-impulse').classList.remove('hidden');
@@ -1091,14 +1073,7 @@
 
             updateHWBtn('btn-rows', 'rows');
             updateHWBtn('btn-cols', 'cols');
-            updateHWBtn('btn-prob', 'prob');
 
-            // 전압 버튼 텍스트 업데이트 (2% 증가 반영)
-            const probBtn = document.getElementById('btn-prob');
-            if (probBtn && !probBtn.classList.contains('hidden')) {
-                let curProb = 50 + (hardware.prob * 2);
-                document.getElementById('eff-prob').innerText = `점등 확률: ${curProb}% -> ${curProb + 2}%`;
-            }
             updateBtn('btn-speed', getHWCost('speed'), `지연시간: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`);
 
             if (bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
@@ -1203,10 +1178,6 @@
                     let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
                     const comboDetail = `전구 개수의 50%(${threshold}개) 이상이 켜질 때부터 지수적 콤보 보너스가 발생합니다.`;
                     html += `<div class="stat-line"><span class="stat-label">[효과]</span><button class="help-btn">? <span class="tooltip">${comboDetail}</span></button> 콤보 시너지 임계치: ${threshold}개</div>`;
-                }
-                if (ranks.spark >= 8) {
-                    let prob = 50 + (hardware.prob * 2);
-                    html += `<div class="stat-line"><span class="stat-label">[효과]</span> 현재 점등 확률: ${prob}%</div>`;
                 }
             }
 
