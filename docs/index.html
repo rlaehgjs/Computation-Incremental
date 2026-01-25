@@ -238,6 +238,26 @@
             cursor: not-allowed;
         }
 
+        button.max-btn {
+            width: 80px;
+            margin: 0;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.2;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            border-left: 1px dashed #666;
+            /* 기본 분리선 색상 (조금 더 밝게) */
+        }
+
+        button.max-btn.affordable {
+            border-left-color: var(--neon);
+            color: var(--neon);
+        }
+
         .rank-title {
             font-size: 16px;
             font-weight: bold;
@@ -624,8 +644,7 @@
                                 <span id="c-rows" class="cost-text">비용: 50</span>
                                 <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
                             </button>
-                            <button id="btn-rows-max" class="action-btn max-btn hidden" onclick="buyHWMax('rows')"
-                                style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px dashed #444;">
+                            <button id="btn-rows-max" class="action-btn max-btn hidden" onclick="buyHWMax('rows')">
                                 <span class="max-count">Max +0</span>
                                 <span class="max-cost" style="color: #aaa;">0</span>
                             </button>
@@ -642,8 +661,7 @@
                                 <span id="c-speed" class="cost-text">비용: 10</span>
                                 <span id="eff-speed" class="effect-info">지연시간: 1000ms -> 900ms</span>
                             </button>
-                            <button id="btn-speed-max" class="action-btn max-btn hidden" onclick="buyHWMax('speed')"
-                                style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px dashed #444;">
+                            <button id="btn-speed-max" class="action-btn max-btn hidden" onclick="buyHWMax('speed')">
                                 <span class="max-count">Max +0</span>
                                 <span class="max-cost" style="color: #aaa;">0</span>
                             </button>
@@ -660,8 +678,7 @@
                                 <span id="c-cols" class="cost-text">비용: 5</span>
                                 <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
                             </button>
-                            <button id="btn-cols-max" class="action-btn max-btn hidden" onclick="buyHWMax('cols')"
-                                style="width: 80px; margin: 0; font-size: 11px; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1.2; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: 1px dashed #444;">
+                            <button id="btn-cols-max" class="action-btn max-btn hidden" onclick="buyHWMax('cols')">
                                 <span class="max-count">Max +0</span>
                                 <span class="max-cost" style="color: #aaa;">0</span>
                             </button>
