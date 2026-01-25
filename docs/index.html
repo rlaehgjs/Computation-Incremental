@@ -607,56 +607,61 @@
 
     <div id="tab-main" class="tab-content active">
         <div class="panel-container">
-            <div class="panel">
-                <div class="section-header">
-                    <h3 style="color: var(--neon); margin:0;">하드웨어 제어</h3>
+            <div class="section-header">
+                <h3 style="color: var(--neon); margin:0;">하드웨어 제어</h3>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label id="buy-max-container" class="hidden"
+                        style="font-size: 12px; color: #888; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="checkbox" id="buy-max-toggle" onchange="updateUI()"> 최대 구매
+                    </label>
                     <button class="help-btn">? <span class="tooltip">전구는 매 사이클마다 50% 확률로 켜지며 정보를 생산합니다.</span></button>
                 </div>
-
-                <div id="hw-controls">
-                    <button id="btn-rows" class="action-btn hidden" onclick="buyHW('rows')">
-                        <span class="rank-title">행 확장 (Rows)</span>
-                        <span id="c-rows" class="cost-text">비용: 50</span>
-                        <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
-                    </button>
-                    <button id="btn-speed" class="action-btn hidden" onclick="buyHW('speed')">
-                        <span class="rank-title">클럭 가속 (Overclock)</span>
-                        <span id="c-speed" class="cost-text">비용: 10</span>
-                        <span id="eff-speed" class="effect-info">지연시간: 1000ms -> 900ms</span>
-                    </button>
-                    <button id="btn-cols" class="action-btn hidden" onclick="buyHW('cols')">
-                        <span class="rank-title">열 확장 (Cols)</span>
-                        <span id="c-cols" class="cost-text">비용: 5</span>
-                        <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
-                    </button>
-                </div>
             </div>
 
-            <div class="panel">
-                <div class="section-header">
-                    <h3 style="color: var(--neon); margin:0;">인지 단계</h3>
-                    <button class="help-btn">? <span class="tooltip">상위 단계 진입 시 하위 단계 자원을 소모합니다.</span></button>
-                </div>
-
-                <div id="rank-controls">
-                    <button id="btn-spark" class="action-btn" onclick="rankUp('spark')">
-                        <span class="rank-title">발상 Lv.<span id="lv-spark">0</span></span>
-                        <span id="c-spark" class="cost-text">비용: 5 비트</span>
-                        <div id="ms-spark" class="milestones"></div>
-                    </button>
-                    <button id="btn-impulse" class="action-btn hidden" onclick="rankUp('impulse')">
-                        <span class="rank-title">충동 Lv.<span id="lv-impulse">0</span></span>
-                        <span id="c-impulse" class="cost-text">필요: 발상 Lv.4</span>
-                        <div id="ms-impulse" class="milestones"></div>
-                    </button>
-                </div>
+            <div id="hw-controls">
+                <button id="btn-rows" class="action-btn hidden" onclick="buyHW('rows')">
+                    <span class="rank-title">행 확장 (Rows)</span>
+                    <span id="c-rows" class="cost-text">비용: 50</span>
+                    <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
+                </button>
+                <button id="btn-speed" class="action-btn hidden" onclick="buyHW('speed')">
+                    <span class="rank-title">클럭 가속 (Overclock)</span>
+                    <span id="c-speed" class="cost-text">비용: 10</span>
+                    <span id="eff-speed" class="effect-info">지연시간: 1000ms -> 900ms</span>
+                </button>
+                <button id="btn-cols" class="action-btn hidden" onclick="buyHW('cols')">
+                    <span class="rank-title">열 확장 (Cols)</span>
+                    <span id="c-cols" class="cost-text">비용: 5</span>
+                    <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
+                </button>
             </div>
         </div>
 
-        <div id="circuit-area">
-            <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">활성 회로 맵</h3>
-            <div id="bulb-grid" style="color: #444; font-size: 12px;">초기화 중...</div>
+        <div class="panel">
+            <div class="section-header">
+                <h3 style="color: var(--neon); margin:0;">인지 단계</h3>
+                <button class="help-btn">? <span class="tooltip">상위 단계 진입 시 하위 단계 자원을 소모합니다.</span></button>
+            </div>
+
+            <div id="rank-controls">
+                <button id="btn-spark" class="action-btn" onclick="rankUp('spark')">
+                    <span class="rank-title">발상 Lv.<span id="lv-spark">0</span></span>
+                    <span id="c-spark" class="cost-text">비용: 5 비트</span>
+                    <div id="ms-spark" class="milestones"></div>
+                </button>
+                <button id="btn-impulse" class="action-btn hidden" onclick="rankUp('impulse')">
+                    <span class="rank-title">충동 Lv.<span id="lv-impulse">0</span></span>
+                    <span id="c-impulse" class="cost-text">필요: 발상 Lv.4</span>
+                    <div id="ms-impulse" class="milestones"></div>
+                </button>
+            </div>
         </div>
+    </div>
+
+    <div id="circuit-area">
+        <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">활성 회로 맵</h3>
+        <div id="bulb-grid" style="color: #444; font-size: 12px;">초기화 중...</div>
+    </div>
     </div>
 
     <div id="tab-stats" class="tab-content container">
@@ -691,6 +696,7 @@
         let bits = new Decimal(0);
         let hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
         let ranks = { spark: 0, impulse: 0 };
+        let maxSpark = 0; // 최고 달성 발상 레벨
         let rankData = null; // JSON에서 로드됨
         let activeSubTab = 'spark';
 
@@ -809,7 +815,7 @@
         }
 
         function saveGame(notify = false) {
-            const saveObj = { bits: bits.toString(), hardware: hardware, ranks: ranks };
+            const saveObj = { bits: bits.toString(), hardware: hardware, ranks: ranks, maxSpark: maxSpark };
             localStorage.setItem('infCompSave', JSON.stringify(saveObj));
             if (notify) alert("저장되었습니다.");
         }
@@ -827,6 +833,7 @@
                         ranks.spark = saveObj.ranks.impulse;
                         ranks.impulse = saveObj.ranks.intuition || 0;
                     }
+                    maxSpark = saveObj.maxSpark || ranks.spark || 0;
                     // 전압 최적화(prob) 누락 시 초기화 (기존 플레이어 호환성)
                     if (hardware.prob === undefined) hardware.prob = 0;
                     addLog("데이터 로드 완료.");
@@ -841,6 +848,7 @@
                 bits = new Decimal(0);
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
                 ranks = { spark: 0, impulse: 0 };
+                maxSpark = 0;
                 localStorage.setItem('infCompFirstTime', 'true');
                 showCutscene('intro');
                 initGrid();
@@ -922,6 +930,9 @@
         }
 
         window.buyHW = function (type) {
+            // 최대 구매 모드 확인
+            const isMax = document.getElementById('buy-max-toggle').checked;
+
             // 세로 최대치: 4 (발상 10 이상이면 +2?) - 일단 4로 고정
             let maxRows = 4;
             if (type === 'rows' && hardware.rows >= maxRows) return;
@@ -929,14 +940,38 @@
             // 가로 최대치: 기본 4, 발상 5+ 레벨마다 +1
             if (type === 'cols' && hardware.cols >= getMaxCols()) return;
 
+            if (isMax) {
+                // 최대 구매 로직
+                let bought = 0;
+                while (true) {
+                    if (type === 'rows' && hardware.rows >= maxRows) break;
+                    if (type === 'cols' && hardware.cols >= getMaxCols()) break;
 
-            let cost = getHWCost(type);
-            if (bits.gte(cost)) {
-                bits = bits.minus(cost);
-                hardware[type]++;
-                if (type === 'rows' || type === 'cols') initGrid();
-                updateUI();
-                saveGame();
+                    let cost = getHWCost(type);
+                    if (bits.gte(cost)) {
+                        bits = bits.minus(cost);
+                        hardware[type]++;
+                        bought++;
+                    } else {
+                        break;
+                    }
+                    if (bought >= 100) break; // 안전장치
+                }
+                if (bought > 0) {
+                    if (type === 'rows' || type === 'cols') initGrid();
+                    updateUI();
+                    saveGame();
+                }
+            } else {
+                // 단일 구매 로직
+                let cost = getHWCost(type);
+                if (bits.gte(cost)) {
+                    bits = bits.minus(cost);
+                    hardware[type]++;
+                    if (type === 'rows' || type === 'cols') initGrid();
+                    updateUI();
+                    saveGame();
+                }
             }
         }
 
@@ -947,6 +982,7 @@
 
                 bits = new Decimal(0);
                 ranks.spark++;
+                maxSpark = Math.max(maxSpark, ranks.spark);
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
                 addLog(`발상 Lv.${ranks.spark}: 사고 확장.`);
             }
@@ -1060,6 +1096,13 @@
             if (ranks.spark >= 1) document.getElementById('btn-cols').classList.remove('hidden');
             else document.getElementById('btn-cols').classList.add('hidden');
 
+            // 최대 구매 버튼 표시 (최고 레벨 10 이상)
+            if (maxSpark >= 10) document.getElementById('buy-max-container').classList.remove('hidden');
+            else {
+                document.getElementById('buy-max-container').classList.add('hidden');
+                document.getElementById('buy-max-toggle').checked = false; // 숨겨질 때 체크 해제
+            }
+
             // 클럭 가속은 발상 2 이상
             if (ranks.spark >= 2) document.getElementById('btn-speed').classList.remove('hidden');
             else document.getElementById('btn-speed').classList.add('hidden');
@@ -1119,10 +1162,25 @@
             const data = rankData[id].ms;
             const curLv = ranks[id];
             let active = data.filter(m => m.lv <= curLv).pop();
-            let future = data.filter(m => m.lv > curLv).slice(0, active ? 2 : 3);
+
+            // 미래 마일스톤 필터링: spoilerMin 필드 기반
+            let future = data.filter(m => {
+                if (m.lv <= curLv) return false;
+                if (m.spoilerMin && curLv < m.spoilerMin) return false;
+                return true;
+            }).slice(0, active ? 2 : 3);
+
             let html = '';
             if (active) html += `<div class="ms-item ms-active">✔ Lv.${active.lv}: ${active.desc}</div>`;
-            future.forEach(m => { html += `<div class="ms-item ms-future">🔒 Lv.${m.lv}: ${m.desc}</div>`; });
+            future.forEach(m => {
+                let desc = m.desc;
+                // 스포일러 마스킹: 한 번도 도달한 적 없으면 ??? 처리 (spoilerMin이 있는 경우)
+                // 발상 12레벨 등
+                if (m.spoilerMin && maxSpark < m.lv) {
+                    desc = "???";
+                }
+                html += `<div class="ms-item ms-future">🔒 Lv.${m.lv}: ${desc}</div>`;
+            });
             msContainer.innerHTML = html;
         }
 
