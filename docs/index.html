@@ -956,8 +956,7 @@
         }
 
         window.buyHW = function (type) {
-            // 최대 구매 모드 확인
-            const isMax = document.getElementById('buy-max-toggle').checked;
+            // 최대 구매 모드 확인 삭제됨 (함수 분리)
 
             // 세로 최대치: 4 (발상 10 이상이면 +2?) - 일단 4로 고정
             let maxRows = 4;
@@ -966,34 +965,102 @@
             // 가로 최대치: 기본 4, 발상 5+ 레벨마다 +1
             if (type === 'cols' && hardware.cols >= getMaxCols()) return;
 
-            if (isMax) {
-                // 최대 구매 로직
-                let bought = 0;
-                while (true) {
-                    if (type === 'rows' && hardware.rows >= maxRows) break;
-                    if (type === 'cols' && hardware.cols >= getMaxCols()) break;
+            // 단일 구매 로직
+            let cost = getHWCost(type);
+            if (bits.gte(cost)) {
+                bits = bits.minus(cost);
+                hardware[type]++;
+                if (type === 'rows' || type === 'cols') initGrid();
+                updateUI();
+                saveGame();
+            }
+        }
 
-                    let cost = getHWCost(type);
-                    if (bits.gte(cost)) {
-                        bits = bits.minus(cost);
-                        hardware[type]++;
-                        bought++;
+        function calcMaxAffordable(type) {
+            let maxRows = 4;
+            let current = hardware[type];
+            let maxLimit = type === 'rows' ? maxRows : (type === 'cols' ? getMaxCols() : 9999);
+
+            // 이미 최대치면 0 리턴
+            if (current >= maxLimit) return { count: 0, cost: new Decimal(0) };
+            if (type === 'prob' && 50 + (current * 2) >= 95) return { count: 0, cost: new Decimal(0) };
+
+            let count = 0;
+            let totalCost = new Decimal(0);
+            let tempBits = new Decimal(bits);
+
+            // 시뮬레이션 (최대 100회)
+            // 비용은 레벨이 오를 때마다 변하므로 getHWCost 로직을 따라가야 함
+            // 하지만 getHWCost는 global hardware state를 참조하므로,
+            // 임시 변수로 계산하거나, 수식을 직접 써야 함.
+            // 가장 안전한 방법: hardware 상태를 잠시 조작하고 복구 (단, 렌더링 사이클 내 동기 실행이므로 안전)
+            // 하지만 부작용 우려가 있으므로, getHWCost의 복사본 로직을 사용하는 것이 좋음.
+            // 여기서는 간단히 루프 내에서 비용 계산만 수행 (하드웨어 상태 변경 없이)
+
+            let simLevel = current;
+
+            for (let i = 0; i < 100; i++) {
+                if (simLevel >= maxLimit) break;
+
+                // 비용 계산 (getHWCost 로직 복제/변형)
+                let base = { rows: 50, cols: 5, speed: 10 }[type];
+                let exp = { rows: 3.5, cols: 2.5, speed: 1.6 }[type];
+                let lv = type === 'speed' ? simLevel : simLevel - 1; // rows/cols는 lv-1 사용
+
+                // 하드웨어 비용 스케일링 감소 (충동 1레벨)
+                if (ranks.impulse >= 1) exp = 1 + (exp - 1) * 0.8;
+
+                if (type === 'rows') {
+                    // getHWCost의 rows 로직
+                    let currentLevel = simLevel - 1;
+                    let adjustedExp = currentLevel + Math.pow(currentLevel, 1.5);
+                    let cost = new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
+                    if (tempBits.lt(cost)) break;
+                    totalCost = totalCost.plus(cost);
+                    tempBits = tempBits.minus(cost);
+                    count++;
+                    simLevel++;
+                }
+                else if (type === 'cols') {
+                    // getHWCost의 cols 로직
+                    if (simLevel >= 5) {
+                        let currentLevel = simLevel - 1;
+                        let adjustedExp = currentLevel + Math.pow(currentLevel - 3, 1.5);
+                        let cost = new Decimal(base).times(Decimal.pow(exp, adjustedExp)).floor();
+                        if (tempBits.lt(cost)) break;
+                        totalCost = totalCost.plus(cost);
+                        tempBits = tempBits.minus(cost);
+                        count++;
+                        simLevel++;
                     } else {
-                        break;
+                        let cost = new Decimal(base).times(Decimal.pow(exp, lv)).floor();
+                        if (tempBits.lt(cost)) break;
+                        totalCost = totalCost.plus(cost);
+                        tempBits = tempBits.minus(cost);
+                        count++;
+                        simLevel++;
                     }
-                    if (bought >= 100) break; // 안전장치
                 }
-                if (bought > 0) {
-                    if (type === 'rows' || type === 'cols') initGrid();
-                    updateUI();
-                    saveGame();
+                else {
+                    // Speed (일반 로직)
+                    let cost = new Decimal(base).times(Decimal.pow(exp, lv)).floor();
+                    if (tempBits.lt(cost)) break;
+                    totalCost = totalCost.plus(cost);
+                    tempBits = tempBits.minus(cost);
+                    count++;
+                    simLevel++;
                 }
-            } else {
-                // 단일 구매 로직
-                let cost = getHWCost(type);
-                if (bits.gte(cost)) {
-                    bits = bits.minus(cost);
-                    hardware[type]++;
+            }
+
+            return { count: count, cost: totalCost };
+        }
+
+        window.buyHWMax = function (type) {
+            let result = calcMaxAffordable(type);
+            if (result.count > 0) {
+                if (bits.gte(result.cost)) {
+                    bits = bits.minus(result.cost);
+                    hardware[type] += result.count;
                     if (type === 'rows' || type === 'cols') initGrid();
                     updateUI();
                     saveGame();
@@ -1119,23 +1186,45 @@
 
             // 하드웨어 버튼 해금 조건 변경
             // 열 확장(cols)은 발상 1 이상
-            if (ranks.spark >= 1) document.getElementById('btn-cols').classList.remove('hidden');
-            else document.getElementById('btn-cols').classList.add('hidden');
+            if (ranks.spark >= 1) document.getElementById('btn-group-cols').classList.remove('hidden');
+            else document.getElementById('btn-group-cols').classList.add('hidden');
 
-            // 최대 구매 버튼 표시 (최고 레벨 10 이상)
-            if (maxSpark >= 10) document.getElementById('buy-max-container').classList.remove('hidden');
-            else {
-                document.getElementById('buy-max-container').classList.add('hidden');
-                document.getElementById('buy-max-toggle').checked = false; // 숨겨질 때 체크 해제
+            // 최대 구매 버튼 표시 (최고 레벨 10 이상) & 업데이트
+            if (maxSpark >= 10) {
+                ['rows', 'cols', 'speed'].forEach(type => {
+                    const btnGroup = document.getElementById(`btn-group-${type}`);
+                    if (!btnGroup.classList.contains('hidden')) { // 상위 그룹이 보일 때만
+                        const maxBtn = document.getElementById(`btn-${type}-max`);
+                        maxBtn.classList.remove('hidden');
+
+                        const calc = calcMaxAffordable(type);
+                        maxBtn.querySelector('.max-count').innerText = `Max +${calc.count}`;
+                        maxBtn.querySelector('.max-cost').innerText = format(calc.cost);
+
+                        if (calc.count > 0 && bits.gte(calc.cost)) {
+                            maxBtn.classList.add('affordable');
+                            maxBtn.disabled = false;
+                            maxBtn.querySelector('.max-cost').style.color = 'var(--neon)';
+                        } else {
+                            maxBtn.classList.remove('affordable');
+                            maxBtn.disabled = true;
+                            maxBtn.querySelector('.max-cost').style.color = '#aaa';
+                        }
+                    }
+                });
+            } else {
+                ['rows', 'cols', 'speed'].forEach(type => {
+                    document.getElementById(`btn-${type}-max`).classList.add('hidden');
+                });
             }
 
             // 클럭 가속은 발상 2 이상
-            if (ranks.spark >= 2) document.getElementById('btn-speed').classList.remove('hidden');
-            else document.getElementById('btn-speed').classList.add('hidden');
+            if (ranks.spark >= 2) document.getElementById('btn-group-speed').classList.remove('hidden');
+            else document.getElementById('btn-group-speed').classList.add('hidden');
 
             // 행 확장(rows)은 발상 3 이상 (기존 발상 4)
-            if (ranks.spark >= 3) document.getElementById('btn-rows').classList.remove('hidden');
-            else document.getElementById('btn-rows').classList.add('hidden');
+            if (ranks.spark >= 3) document.getElementById('btn-group-rows').classList.remove('hidden');
+            else document.getElementById('btn-group-rows').classList.add('hidden');
 
 
             // 충동 버튼: 발상 4 이상이거나, 이미 충동을 한 번이라도 올렸다면 표시
@@ -1144,7 +1233,6 @@
 
             updateHWBtn('btn-rows', 'rows');
             updateHWBtn('btn-cols', 'cols');
-
             updateBtn('btn-speed', getHWCost('speed'), `지연시간: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`);
 
             if (bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
