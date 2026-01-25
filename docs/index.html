@@ -251,12 +251,20 @@
             border-bottom-left-radius: 0;
             border-left: 2px dashed #888;
             /* 더 두껍고 밝게 */
+            position: relative;
+            z-index: 2;
+            /* 분리선이 메인 버튼 위에 오도록 */
         }
 
         button.max-btn.affordable {
             border-left-color: #eee;
             /* 활성화 시 흰색 계열로 대비 강조 */
             color: var(--neon);
+        }
+
+        /* 분할 버튼 컨테이너 내에서는 움직임 효과 제거 (정렬 유지) */
+        .hw-btn-container .action-btn:hover {
+            transform: none;
         }
 
         .rank-title {
