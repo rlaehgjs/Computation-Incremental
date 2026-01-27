@@ -1179,7 +1179,7 @@
             }
             let delay = calculateDelay(hardware.speed);
             // 최소 딜레이 제한: 브라우저 타이머 해상도와 성능을 고려하여 16ms (약 60fps)로 제한
-            // 4ms 미만이면 브라우저가 자동으로 올리지만, UI 업데이트 빈도를 고려해 16ms가 적절
+            // 4ms 미만이면 브라우저가 자동으로 올리지만, UI 업데이트 빈도를 고려해 16ms가 적절한데... 추후 수정 필요
             delay = Math.max(delay, 16);
             processTick();
             updateUI();
