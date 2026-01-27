@@ -1149,8 +1149,8 @@
                 const cMod = getHWModifier('cols', hardware.cols);
 
                 // 간단하게 도달한 모든 티어를 체크 (0단계는 제외)
-                // 현재 로직상 1(고급)만 있으므로 1이 도달했는지 체크
-                if (hardware.rows >= 1 || hardware.cols >= 5) {
+                // 현재 로직상 1(고급)만 있으므로 cols >= 5만 체크 (rows는 원래 빠름)
+                if (hardware.cols >= 5) {
                     activeTiers.push('tier1'); // 고급
                 }
 
@@ -1169,7 +1169,7 @@
             const container = document.getElementById('sub-tab-container');
             const labels = {
                 'spark': '발상', 'impulse': '충동',
-                'tier1': '고급 [Tier 1]', 'tier2': '정밀 [Tier 2]'
+                'tier1': '고급', 'tier2': '정밀'
             };
             container.innerHTML = ids.map(id => `
                 <button class="sub-tab-btn ${activeSubTab === id ? 'active' : ''}" onclick="switchSubTab('${id}')">
@@ -1548,10 +1548,7 @@
             let penalties = [];
 
             if (type === 'rows') {
-                if (level >= 1) {
-                    activeTier = 1;
-                    penalties.push({ name: "설계 밀집도 상승", desc: "지수 가중치 lv^1.5 적용" });
-                }
+                // 행 확장은 원래 빠르게 증가하므로 수식어 없음
             }
             if (type === 'cols') {
                 if (level >= 5) {
