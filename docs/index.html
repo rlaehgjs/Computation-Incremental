@@ -742,6 +742,8 @@
             <div class="setting-group">
                 <div class="setting-title">데이터 관리</div>
                 <button class="setting-btn" onclick="saveGame(true)">강제 저장</button>
+                <button class="setting-btn" onclick="exportGame()">데이터 내보내기 (클립보드 복사)</button>
+                <button class="setting-btn" onclick="importGame()">데이터 불러오기 (텍스트 입력)</button>
                 <button class="setting-btn" onclick="resetGame()" style="color: #f88; border-color: #522;">전체
                     초기화</button>
                 <button class="setting-btn" style="margin-top: 10px;" onclick="showCutscene('intro')">스토리 다시 보기</button>
@@ -877,6 +879,37 @@
             const saveObj = { bits: bits.toString(), hardware: hardware, ranks: ranks, maxSpark: maxSpark };
             localStorage.setItem('infCompSave', JSON.stringify(saveObj));
             if (notify) alert("저장되었습니다.");
+        }
+
+        window.exportGame = function () {
+            saveGame();
+            const saveStr = localStorage.getItem('infCompSave');
+            const encoded = btoa(unescape(encodeURIComponent(saveStr)));
+            navigator.clipboard.writeText(encoded).then(() => {
+                alert("세이브 데이터가 클립보드에 복사되었습니다.");
+            }).catch(err => {
+                console.error('클립보드 복사 실패:', err);
+                alert("복사에 실패했습니다. 콘솔을 확인해주세요.");
+            });
+        }
+
+        window.importGame = function () {
+            const input = prompt("내보내기 했던 세이브 문자열을 입력해주세요:");
+            if (!input) return;
+
+            try {
+                const decoded = decodeURIComponent(escape(atob(input)));
+                const saveObj = JSON.parse(decoded);
+
+                if (saveObj.bits && saveObj.hardware && saveObj.ranks) {
+                    localStorage.setItem('infCompSave', decoded);
+                    location.reload();
+                } else {
+                    throw new Error("유효하지 않은 세이브 데이터 형식입니다.");
+                }
+            } catch (e) {
+                alert("데이터를 불러오는 데 실패했습니다: " + e.message);
+            }
         }
 
         function loadGame() {
