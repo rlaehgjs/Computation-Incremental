@@ -623,8 +623,8 @@
     <div class="header">
         <div id="bit-container" class="bits-count">비트: <span id="bits">0</span></div>
         <div style="text-align: right;">
-            [ 시스템 온라인 ]<br>
-            사이클: <span id="cycle-speed">1000</span>ms
+            Ver 0.1.0<br>
+            자동 저장: <span id="save-timer">60</span>s
         </div>
     </div>
 
@@ -740,6 +740,15 @@
     <div id="tab-settings" class="tab-content container">
         <div class="panel" style="grid-column: span 2;">
             <div class="setting-group">
+                <div class="setting-title">게임 설정</div>
+                <div class="setting-item"
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #333; margin-bottom: 10px; border-radius: 4px;">
+                    <span>오프라인 진행 허용</span>
+                    <button id="setting-offline" class="setting-btn" style="width: 100px; margin: 0;"
+                        onclick="toggleSetting('offlineProgress')">ON</button>
+                </div>
+            </div>
+            <div class="setting-group">
                 <div class="setting-title">데이터 관리</div>
                 <button class="setting-btn" onclick="saveGame(true)">강제 저장</button>
                 <button class="setting-btn" onclick="exportGame()">데이터 내보내기 (클립보드 복사)</button>
@@ -758,6 +767,7 @@
         let hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
         let ranks = { spark: 0, impulse: 0 };
         let maxSpark = 0; // 최고 달성 발상 레벨
+        let settings = { offlineProgress: true }; // 기본 설정
         let rankData = null; // JSON에서 로드됨
         let activeSubTab = 'spark';
 
@@ -876,9 +886,16 @@
         }
 
         function saveGame(notify = false) {
-            const saveObj = { bits: bits.toString(), hardware: hardware, ranks: ranks, maxSpark: maxSpark };
+            const saveObj = {
+                bits: bits.toString(),
+                hardware: hardware,
+                ranks: ranks,
+                maxSpark: maxSpark,
+                settings: settings,
+                lastSaveTime: Date.now()
+            };
             localStorage.setItem('infCompSave', JSON.stringify(saveObj));
-            if (notify) alert("저장되었습니다.");
+            if (notify) addLog("데이터가 성공적으로 저장되었습니다.");
         }
 
         window.exportGame = function () {
@@ -886,10 +903,10 @@
             const saveStr = localStorage.getItem('infCompSave');
             const encoded = btoa(unescape(encodeURIComponent(saveStr)));
             navigator.clipboard.writeText(encoded).then(() => {
-                alert("세이브 데이터가 클립보드에 복사되었습니다.");
+                addLog("세이브 데이터가 클립보드에 복사되었습니다.");
             }).catch(err => {
                 console.error('클립보드 복사 실패:', err);
-                alert("복사에 실패했습니다. 콘솔을 확인해주세요.");
+                addLog("복사에 실패했습니다. 콘솔을 확인해주세요.");
             });
         }
 
@@ -903,12 +920,13 @@
 
                 if (saveObj.bits && saveObj.hardware && saveObj.ranks) {
                     localStorage.setItem('infCompSave', decoded);
-                    location.reload();
+                    addLog("데이터를 성공적으로 불러왔습니다. 페이지를 새로고침합니다.");
+                    setTimeout(() => location.reload(), 1000);
                 } else {
                     throw new Error("유효하지 않은 세이브 데이터 형식입니다.");
                 }
             } catch (e) {
-                alert("데이터를 불러오는 데 실패했습니다: " + e.message);
+                addLog("데이터를 불러오는 데 실패했습니다: " + e.message);
             }
         }
 
@@ -926,9 +944,16 @@
                         ranks.impulse = saveObj.ranks.intuition || 0;
                     }
                     maxSpark = saveObj.maxSpark || ranks.spark || 0;
+                    if (saveObj.settings) settings = { ...settings, ...saveObj.settings };
                     // 전압 최적화(prob) 누락 시 초기화 (기존 플레이어 호환성)
                     if (hardware.prob === undefined) hardware.prob = 0;
+
                     addLog("데이터 로드 완료.");
+
+                    // 오프라인 진행 계산
+                    if (saveObj.lastSaveTime) {
+                        processOfflineProgress(saveObj.lastSaveTime);
+                    }
                 } catch (e) { }
             }
         }
@@ -1178,60 +1203,88 @@
                 return;
             }
             let delay = calculateDelay(hardware.speed);
-            // 최소 딜레이 제한: 브라우저 타이머 해상도와 성능을 고려하여 16ms (약 60fps)로 제한
-            // 4ms 미만이면 브라우저가 자동으로 올리지만, UI 업데이트 빈도를 고려해 16ms가 적절한데... 추후 수정 필요
             delay = Math.max(delay, 16);
-            processTick();
+            bits = bits.plus(getTickYield(true));
             updateUI();
-            document.getElementById('cycle-speed').innerText = Math.floor(delay);
             setTimeout(gameLoop, delay);
         }
 
-        function processTick() {
+        function getTickYield(doFlash = false) {
             let prob = 50;
-
             let onCount = 0;
             let total = hardware.rows * hardware.cols;
             for (let i = 0; i < total; i++) {
-                if (Math.random() * 100 < prob) { onCount++; flash(i); }
+                if (Math.random() * 100 < prob) {
+                    onCount++;
+                    if (doFlash) flash(i);
+                }
             }
 
-            if (onCount > 0) {
-                let formulaBonus = new Decimal(1);
+            if (onCount === 0) return new Decimal(0);
 
-                // 발상 5레벨 보너스
-                if (ranks.spark >= 5) {
-                    let sBonus = ranks.spark * 0.5 + 1;
-                    // 충동 2레벨: 발상 보너스 제곱
-                    if (ranks.impulse >= 2) {
-                        sBonus = sBonus ** 2;
-                    }
-                    formulaBonus = formulaBonus.times(sBonus);
-                }
+            let formulaBonus = new Decimal(1);
 
-                // 충동 2레벨: 충동 비례 보너스 (독립 적용)
+            // 발상 5레벨 보너스
+            if (ranks.spark >= 5) {
+                let sBonus = ranks.spark * 0.5 + 1;
+                // 충동 2레벨: 발상 보너스 제곱
                 if (ranks.impulse >= 2) {
-                    let iBonus = ranks.impulse * 2 + 1;
-                    formulaBonus = formulaBonus.times(iBonus);
+                    sBonus = sBonus ** 2;
                 }
-
-                let yieldMult = formulaBonus;
-
-                let comboMult = new Decimal(1);
-                // 발상 6레벨 콤보 해금
-                if (ranks.spark >= 6) {
-                    let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
-                    if (onCount > threshold) {
-                        let bonusRaw = 1 + 1.2 ** (onCount - threshold);
-                        if (bonusRaw > 100) {
-                            bonusRaw = 100 + Math.pow(bonusRaw - 100, 0.5);
-                        }
-                        comboMult = new Decimal(bonusRaw);
-                    }
-                }
-
-                bits = bits.plus(yieldMult.times(onCount).times(comboMult));
+                formulaBonus = formulaBonus.times(sBonus);
             }
+
+            // 충동 2레벨: 충동 비례 보너스 (독립 적용)
+            if (ranks.impulse >= 2) {
+                let iBonus = ranks.impulse * 2 + 1;
+                formulaBonus = formulaBonus.times(iBonus);
+            }
+
+            let yieldMult = formulaBonus;
+
+            let comboMult = new Decimal(1);
+            // 발상 6레벨 콤보 해금
+            if (ranks.spark >= 6) {
+                let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
+                if (onCount > threshold) {
+                    let bonusRaw = 1 + 1.2 ** (onCount - threshold);
+                    if (bonusRaw > 100) {
+                        bonusRaw = 100 + Math.pow(bonusRaw - 100, 0.5);
+                    }
+                    comboMult = new Decimal(bonusRaw);
+                }
+            }
+
+            return yieldMult.times(onCount).times(comboMult);
+        }
+
+        function processOfflineProgress(lastTime) {
+            if (!settings.offlineProgress) return;
+
+            const now = Date.now();
+            const diffMs = now - lastTime;
+            if (diffMs < 5000) return; // 5초 미만은 무시
+
+            const delay = calculateDelay(hardware.speed);
+            const totalTicks = Math.floor(diffMs / delay);
+            if (totalTicks <= 0) return;
+
+            const simTicks = Math.min(totalTicks, 100000);
+            let totalGained = new Decimal(0);
+
+            addLog(`오프라인 연산 시뮬레이션 중... (${Math.floor(diffMs / 1000)}초 분량)`);
+
+            for (let i = 0; i < simTicks; i++) {
+                totalGained = totalGained.plus(getTickYield(false));
+            }
+
+            if (totalTicks > simTicks) {
+                const multiplier = totalTicks / simTicks;
+                totalGained = totalGained.times(multiplier);
+            }
+
+            bits = bits.plus(totalGained);
+            addLog(`오프라인 진행 완료: ${format(totalGained)} 비트를 생성했습니다.`);
         }
 
         function updateUI() {
@@ -1306,6 +1359,23 @@
 
             updateMilestones('spark');
             updateMilestones('impulse');
+            updateSettingsUI();
+        }
+
+        window.toggleSetting = function (key) {
+            settings[key] = !settings[key];
+            updateSettingsUI();
+            saveGame();
+            addLog(`설정 변경: ${key === 'offlineProgress' ? '오프라인 진행' : key} -> ${settings[key] ? 'ON' : 'OFF'}`);
+        }
+
+        function updateSettingsUI() {
+            const offlineBtn = document.getElementById('setting-offline');
+            if (offlineBtn) {
+                offlineBtn.innerText = settings.offlineProgress ? "ON" : "OFF";
+                offlineBtn.style.color = settings.offlineProgress ? "var(--neon)" : "#888";
+                offlineBtn.style.borderColor = settings.offlineProgress ? "var(--neon)" : "#444";
+            }
         }
 
         function updateHWBtn(id, type) {
@@ -1446,10 +1516,20 @@
             log.innerHTML = `> ${msg}<br>${log.innerHTML}`;
         }
 
-        // 자동 저장 (1분마다)
+        // 자동 저장 시스템
+        let saveTimer = 60;
         setInterval(() => {
-            if (!isGamePaused) saveGame();
-        }, 60000);
+            if (!isGamePaused) {
+                saveTimer--;
+                if (saveTimer <= 0) {
+                    saveGame();
+                    addLog("자동 저장이 완료되었습니다.");
+                    saveTimer = 60;
+                }
+                const timerEl = document.getElementById('save-timer');
+                if (timerEl) timerEl.innerText = saveTimer;
+            }
+        }, 1000);
 
         let gameLoopStarted = false;
 
