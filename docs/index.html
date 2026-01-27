@@ -731,6 +731,7 @@
             <div class="sub-tab-nav">
                 <button class="sub-tab-btn active" onclick="switchSubTab('spark')">발상</button>
                 <button class="sub-tab-btn" onclick="switchSubTab('impulse')">충동</button>
+                <button class="sub-tab-btn" onclick="switchSubTab('hardware')">하드웨어</button>
                 <button class="sub-tab-btn" onclick="switchSubTab('system')">시스템</button>
             </div>
             <div id="stats-list"></div>
@@ -1037,8 +1038,9 @@
 
         window.switchSubTab = function (subTabId) {
             activeSubTab = subTabId;
+            const btnMap = { 'spark': '발상', 'impulse': '충동', 'hardware': '하드웨어', 'system': '시스템' };
             document.querySelectorAll('.sub-tab-btn').forEach(btn => {
-                if (btn.innerText === (subTabId === 'spark' ? '발상' : (subTabId === 'impulse' ? '충동' : '시스템'))) {
+                if (btn.innerText === btnMap[subTabId]) {
                     btn.classList.add('active');
                 } else {
                     btn.classList.remove('active');
@@ -1396,21 +1398,35 @@
                 btn.querySelector('.rank-title').innerText = title;
 
                 let effect = `${type === 'rows' ? '행' : '열'}: ${level} -> ${level + 1} (최대 ${maxVal})`;
-                if (mod.penalty) effect += `<br><span style="color: #f88; font-size: 10px;">${mod.penalty}</span>`;
+                if (mod.latestPenalty) effect += `<br><span style="color: #f88; font-size: 10px;">${mod.latestPenalty}</span>`;
 
                 updateBtn(id, getHWCost(type), effect);
             }
         }
 
         function getHWModifier(type, level) {
-            // 현재 수식 기반 가속 단계 정의
+            // 현재 수식 기반 가속 단계 정의 (0: 없음, 1: 고급, ...)
+            let activeTier = 0;
+            let penalties = [];
+
             if (type === 'rows') {
-                return { prefix: HW_PREFIXES[1], penalty: "설계 밀집도 상승 (지수 가중치 lv^1.5)" };
+                if (level >= 1) {
+                    activeTier = 1;
+                    penalties.push({ name: "설계 밀집도 상승", desc: "지수 가중치 lv^1.5 적용" });
+                }
             }
-            if (type === 'cols' && level >= 5) {
-                return { prefix: HW_PREFIXES[1], penalty: "회로 간섭 발생 (지수 가중치 (lv-3)^1.5)" };
+            if (type === 'cols') {
+                if (level >= 5) {
+                    activeTier = 1;
+                    penalties.push({ name: "회로 간섭 발생", desc: "지수 가중치 (lv-3)^1.5 적용" });
+                }
             }
-            return { prefix: "", penalty: "" };
+
+            return {
+                prefix: HW_PREFIXES[activeTier] || "",
+                allPenalties: penalties,
+                latestPenalty: penalties.length > 0 ? penalties[penalties.length - 1].name : ""
+            };
         }
 
         function updateBtn(id, cost, effectText) {
@@ -1509,6 +1525,18 @@
                     const comboDetail = `전구 개수의 50%(${threshold}개) 이상이 켜질 때부터 지수적 콤보 보너스가 발생합니다.`;
                     html += `<div class="stat-line"><span class="stat-label">[효과]</span><button class="help-btn">? <span class="tooltip">${comboDetail}</span></button> 콤보 시너지 임계치: ${threshold}개</div>`;
                 }
+            } else if (activeSubTab === 'hardware') {
+                const types = ['rows', 'cols'];
+                types.forEach(type => {
+                    const mod = getHWModifier(type, hardware[type]);
+                    const label = type === 'rows' ? '행 확장' : '열 확장';
+                    if (mod.allPenalties.length > 0) {
+                        mod.allPenalties.forEach(p => {
+                            html += `<div class="stat-line"><span class="stat-label" style="color: #f88;">[${label}]</span> ${p.name}: ${p.desc}</div>`;
+                        });
+                    }
+                });
+                if (html === '') html = '<div style="padding:10px; color:#666;">현재 적용 중인 하드웨어 페널티가 없습니다.</div>';
             }
 
             if (html === '') html = '<div style="padding:10px; color:#666;">해당 카테고리에 활성화된 효과가 없습니다.</div>';
