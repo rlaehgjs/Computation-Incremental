@@ -770,6 +770,7 @@
         let settings = { offlineProgress: true }; // 기본 설정
         let rankData = null; // JSON에서 로드됨
         let activeSubTab = 'spark';
+        const HW_PREFIXES = ["", "고급", "정밀", "전문", "첨단", "극한", "양자", "초차원", "이종", "허상"];
 
         // 스토리 컷신 데이터
         const storyData = {
@@ -1381,16 +1382,35 @@
         function updateHWBtn(id, type) {
             const btn = document.getElementById(id);
             let maxVal = type === 'cols' ? getMaxCols() : 4;
+            let level = hardware[type];
 
-            if (hardware[type] >= maxVal) {
+            if (level >= maxVal) {
                 btn.querySelector('.rank-title').innerText = type === 'cols' ? "열 확장 (최대)" : "행 확장 (최대)";
                 btn.querySelector('.cost-text').innerText = "최대";
                 btn.querySelector('.effect-info').innerText = "제한 도달";
                 btn.classList.remove('affordable');
                 btn.disabled = true;
             } else {
-                updateBtn(id, getHWCost(type), `${type === 'rows' ? '행' : '열'}: ${hardware[type]} -> ${hardware[type] + 1} (최대 ${maxVal})`);
+                let mod = getHWModifier(type, level);
+                let title = (mod.prefix ? `[${mod.prefix}] ` : "") + (type === 'rows' ? "행 확장 (Rows)" : "열 확장 (Cols)");
+                btn.querySelector('.rank-title').innerText = title;
+
+                let effect = `${type === 'rows' ? '행' : '열'}: ${level} -> ${level + 1} (최대 ${maxVal})`;
+                if (mod.penalty) effect += `<br><span style="color: #f88; font-size: 10px;">${mod.penalty}</span>`;
+
+                updateBtn(id, getHWCost(type), effect);
             }
+        }
+
+        function getHWModifier(type, level) {
+            // 현재 수식 기반 가속 단계 정의
+            if (type === 'rows') {
+                return { prefix: HW_PREFIXES[1], penalty: "설계 밀집도 상승 (지수 가중치 lv^1.5)" };
+            }
+            if (type === 'cols' && level >= 5) {
+                return { prefix: HW_PREFIXES[1], penalty: "회로 간섭 발생 (지수 가중치 (lv-3)^1.5)" };
+            }
+            return { prefix: "", penalty: "" };
         }
 
         function updateBtn(id, cost, effectText) {
@@ -1400,7 +1420,7 @@
             const costEl = btn.querySelector('.cost-text');
             const effEl = btn.querySelector('.effect-info');
             if (costEl) costEl.innerText = `비용: ${format(cost)}`;
-            if (effEl) effEl.innerText = effectText;
+            if (effEl) effEl.innerHTML = effectText; // HTML 허용 (페널티 메시지용)
 
             if (bits.gte(cost)) btn.classList.add('affordable');
             else btn.classList.remove('affordable');
