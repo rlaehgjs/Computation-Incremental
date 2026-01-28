@@ -1387,7 +1387,7 @@
             if (ranks.spark >= 6) {
                 let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
                 if (onCount > threshold) {
-                    let bonusRaw = 1 + 1.2 ** (onCount - threshold);
+                    let bonusRaw = 1.2 ** (onCount - threshold);
                     if (bonusRaw > 100) {
                         bonusRaw = 100 + Math.pow(bonusRaw - 100, 0.5);
                     }
@@ -1492,7 +1492,13 @@
 
             updateHWBtn('btn-rows', 'rows');
             updateHWBtn('btn-cols', 'cols');
-            updateBtn('btn-speed', getHWCost('speed'), `지연시간: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`);
+
+            // 클럭 가속 버튼 업데이트 (소프트캡 표시 추가)
+            let speedEffect = `지연시간: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`;
+            if (hardware.speed >= 5) {
+                speedEffect += ` <span style="color: #f88; font-size: 10px;">(과부하)</span>`;
+            }
+            updateBtn('btn-speed', getHWCost('speed'), speedEffect);
 
             if (bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
             else document.getElementById('bit-container').classList.remove('affordable');
