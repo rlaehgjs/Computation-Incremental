@@ -1156,8 +1156,8 @@
                 let scalingMult = 1.0;
                 // 발상 비용 스케일링 감소 (충동 1레벨)
                 if (ranks.impulse >= 1) scalingMult = 0.8;
-                let exponent = Math.pow(ranks.spark, 1 + (1 / 6) * scalingMult);
-                let baseCost = Decimal.pow(2.5, exponent).times(5);
+                let exponent = Math.pow(ranks.spark, 1 + (1 / 6));
+                let baseCost = Decimal.pow(1 + 1.5 * scalingMult, exponent).times(5);
 
                 return baseCost.floor();
             }
