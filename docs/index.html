@@ -89,7 +89,7 @@
         /* 패널 레이아웃 수정 */
         .panel-container {
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
+            grid-template-columns: 1.3fr 1fr;
             gap: 30px;
             width: 100%;
         }
@@ -265,6 +265,18 @@
         /* 분할 버튼 컨테이너 내에서는 움직임 효과 제거 (정렬 유지) */
         .hw-btn-container .action-btn:hover {
             transform: none;
+        }
+
+        /* Max 버튼이 숨겨졌을 때 메인 버튼의 오른쪽 모서리 복원 */
+        .hw-btn-container .action-btn {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Max 버튼이 보일 때만 메인 버튼의 오른쪽 모서리 제거 */
+        .hw-btn-container:has(.max-btn:not(.hidden)) .action-btn {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
         }
 
         .rank-title {
@@ -729,14 +741,14 @@
                 </div>
 
                 <div id="hw-controls">
-                    <!-- 행 확장 (Rows) -->
+                    <!-- 행 추가 (Rows) -->
                     <div id="btn-group-rows" class="hidden">
                         <div class="hw-btn-container"
                             style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
                             <button id="btn-rows" class="action-btn" onclick="buyHW('rows')"
                                 style="flex: 1; margin: 0; margin-right: -1px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">행 확장 (Rows)</span>
-                                <span id="c-rows" class="cost-text">비용: 50</span>
+                                <span class="rank-title">행 추가 (Rows)</span>
+                                <span id="c-rows" class="cost-text">50 비트 소모</span>
                                 <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
                             </button>
                             <button id="btn-rows-max" class="action-btn max-btn hidden" onclick="buyHWMax('rows')">
@@ -752,8 +764,8 @@
                             style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
                             <button id="btn-speed" class="action-btn" onclick="buyHW('speed')"
                                 style="flex: 1; margin: 0; margin-right: -1px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">클럭 가속 (Overclock)</span>
-                                <span id="c-speed" class="cost-text">비용: 10</span>
+                                <span class="rank-title">클럭 가속</span>
+                                <span id="c-speed" class="cost-text">10 비트 소모</span>
                                 <span id="eff-speed" class="effect-info">지연시간: 1000ms -> 900ms</span>
                             </button>
                             <button id="btn-speed-max" class="action-btn max-btn hidden" onclick="buyHWMax('speed')">
@@ -763,14 +775,14 @@
                         </div>
                     </div>
 
-                    <!-- 열 확장 (Cols) -->
+                    <!-- 열 추가 (Cols) -->
                     <div id="btn-group-cols" class="hidden">
                         <div class="hw-btn-container"
                             style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
                             <button id="btn-cols" class="action-btn" onclick="buyHW('cols')"
                                 style="flex: 1; margin: 0; margin-right: -1px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">열 확장 (Cols)</span>
-                                <span id="c-cols" class="cost-text">비용: 5</span>
+                                <span class="rank-title">열 추가 (Cols)</span>
+                                <span id="c-cols" class="cost-text">5 비트 소모</span>
                                 <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
                             </button>
                             <button id="btn-cols-max" class="action-btn max-btn hidden" onclick="buyHWMax('cols')">
@@ -791,12 +803,12 @@
                 <div id="rank-controls">
                     <button id="btn-spark" class="action-btn" onclick="rankUp('spark')">
                         <span class="rank-title">발상 Lv.<span id="lv-spark">0</span></span>
-                        <span id="c-spark" class="cost-text">비용: 5 비트</span>
+                        <span id="c-spark" class="cost-text">5 비트 소모</span>
                         <div id="ms-spark" class="milestones"></div>
                     </button>
                     <button id="btn-impulse" class="action-btn hidden" onclick="rankUp('impulse')">
                         <span class="rank-title">충동 Lv.<span id="lv-impulse">0</span></span>
-                        <span id="c-impulse" class="cost-text">필요: 발상 Lv.4</span>
+                        <span id="c-impulse" class="cost-text">발상 Lv.4 필요</span>
                         <div id="ms-impulse" class="milestones"></div>
                     </button>
                 </div>
@@ -1444,7 +1456,7 @@
             impBtn.disabled = ranks.spark < reqSpark;
 
             // 하드웨어 버튼 해금 조건 변경
-            // 열 확장(cols)은 발상 1 이상
+            // 열 추가(cols)은 발상 1 이상
             if (ranks.spark >= 1) document.getElementById('btn-group-cols').classList.remove('hidden');
             else document.getElementById('btn-group-cols').classList.add('hidden');
 
@@ -1481,7 +1493,7 @@
             if (ranks.spark >= 2) document.getElementById('btn-group-speed').classList.remove('hidden');
             else document.getElementById('btn-group-speed').classList.add('hidden');
 
-            // 행 확장(rows)은 발상 3 이상 (기존 발상 4)
+            // 행 추가(rows)은 발상 3 이상 (기존 발상 4)
             if (ranks.spark >= 3) document.getElementById('btn-group-rows').classList.remove('hidden');
             else document.getElementById('btn-group-rows').classList.add('hidden');
 
@@ -1531,14 +1543,14 @@
 
             let mod = getHWModifier(type, level);
             if (level >= maxVal) {
-                let title = (mod.prefix ? `${mod.prefix} ` : "") + (type === 'cols' ? "열 확장" : "행 확장") + " (최대)";
+                let title = (mod.prefix ? `${mod.prefix} ` : "") + (type === 'cols' ? "열 추가" : "행 추가") + " (최대)";
                 btn.querySelector('.rank-title').innerText = title;
                 btn.querySelector('.cost-text').innerText = "최대";
                 btn.querySelector('.effect-info').innerText = "제한 도달";
                 btn.classList.remove('affordable');
                 btn.disabled = true;
             } else {
-                let title = (mod.prefix ? `${mod.prefix} ` : "") + (type === 'rows' ? "행 확장 (Rows)" : "열 확장 (Cols)");
+                let title = (mod.prefix ? `${mod.prefix} ` : "") + (type === 'rows' ? "행 추가 (Rows)" : "열 추가 (Cols)");
                 btn.querySelector('.rank-title').innerText = title;
 
                 let effect = `${type === 'rows' ? '행' : '열'}: ${level} -> ${level + 1} (최대 ${maxVal})`;
@@ -1554,7 +1566,7 @@
             let penalties = [];
 
             if (type === 'rows') {
-                // 행 확장은 원래 빠르게 증가하므로 수식어 없음
+                // 행 추가는 원래 빠르게 증가하므로 수식어 없음
             }
             if (type === 'cols') {
                 if (level >= 5) {
@@ -1576,7 +1588,7 @@
 
             const costEl = btn.querySelector('.cost-text');
             const effEl = btn.querySelector('.effect-info');
-            if (costEl) costEl.innerText = `비용: ${format(cost)}`;
+            if (costEl) costEl.innerText = `비용: ${format(cost)} 비트`;
             if (effEl) effEl.innerHTML = effectText; // HTML 허용 (페널티 메시지용)
 
             if (bits.gte(cost)) btn.classList.add('affordable');
@@ -1673,11 +1685,11 @@
                     // 고급 티어 정보
                     html = `<div class="scaling-info-container">`;
 
-                    const types = ['cols']; // 행 확장은 제외
+                    const types = ['cols']; // 행 추가는 제외
                     let appliedAny = false;
                     types.forEach(type => {
                         const level = hardware[type];
-                        const label = type === 'rows' ? '행 확장 (Rows)' : '열 확장 (Cols)';
+                        const label = type === 'rows' ? '행 추가 (Rows)' : '열 추가 (Cols)';
                         const mod = getHWModifier(type, level);
 
                         if (mod.prefix === '고급') {
