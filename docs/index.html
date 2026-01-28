@@ -1458,7 +1458,8 @@
             let comboMult = new Decimal(1);
             // 발상 6레벨 콤보 해금
             if (ranks.spark >= 6) {
-                let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
+                let thresholdRatio = ranks.spark >= 8 ? 0.4 : 0.5;
+                let threshold = Math.ceil((hardware.rows * hardware.cols) * thresholdRatio);
                 if (onCount > threshold) {
                     let bonusRaw = 1.25 ** (onCount - threshold);
                     if (bonusRaw > 100) {
