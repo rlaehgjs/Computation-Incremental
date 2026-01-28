@@ -238,45 +238,78 @@
             cursor: not-allowed;
         }
 
-        button.max-btn {
-            width: 80px;
-            margin: 0;
-            font-size: 11px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            line-height: 1.2;
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-            border-left: 2px dashed #888;
-            /* 더 두껍고 밝게 */
-            position: relative;
-            z-index: 2;
-            /* 분리선이 메인 버튼 위에 오도록 */
+        /* 숨김 처리 최우선 적용 (우선순위 강화) */
+        .hidden,
+        button.hidden,
+        div.hidden {
+            display: none !important;
         }
 
-        button.max-btn.affordable {
-            border-left-color: #eee;
-            /* 활성화 시 흰색 계열로 대비 강조 */
-            color: var(--neon);
+        button.action-btn.max-btn {
+            width: 80px !important;
+            min-width: 80px !important;
+            max-width: 80px !important;
+            margin: 0 !important;
+            padding: 8px 4px !important;
+            font-size: 11px !important;
+            display: flex;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            line-height: 1.2 !important;
+            box-sizing: border-box !important;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+            border-top-right-radius: 4px !important;
+            border-bottom-right-radius: 4px !important;
+            border-top: 1px solid var(--gray) !important;
+            border-right: 1px solid var(--gray) !important;
+            border-bottom: 1px solid var(--gray) !important;
+            border-left: 1px dashed #666 !important;
+            position: relative !important;
+            z-index: 2 !important;
+            flex-shrink: 0 !important;
+        }
+
+        button.action-btn.max-btn.affordable {
+            border-left-color: #eee !important;
+            border-top-color: var(--neon) !important;
+            border-right-color: var(--neon) !important;
+            border-bottom-color: var(--neon) !important;
+            color: var(--neon) !important;
         }
 
         /* 분할 버튼 컨테이너 내에서는 움직임 효과 제거 (정렬 유지) */
+        .hw-btn-container {
+            display: flex;
+            gap: 0;
+            margin-bottom: 12px;
+            align-items: stretch;
+            overflow: visible !important;
+            /* Max 버튼의 오른쪽 테두리가 잘리지 않도록 */
+        }
+
         .hw-btn-container .action-btn:hover {
             transform: none;
         }
 
         /* Max 버튼이 숨겨졌을 때 메인 버튼의 오른쪽 모서리 복원 */
         .hw-btn-container .action-btn {
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
+            border-top-right-radius: 4px !important;
+            border-bottom-right-radius: 4px !important;
+            border-right: 1px solid var(--gray) !important;
+        }
+
+        /* affordable 상태일 때 오른쪽 테두리도 초록색으로 */
+        .hw-btn-container .action-btn.affordable {
+            border-right-color: var(--neon) !important;
         }
 
         /* Max 버튼이 보일 때만 메인 버튼의 오른쪽 모서리 제거 */
-        .hw-btn-container:has(.max-btn:not(.hidden)) .action-btn {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
+        .hw-btn-container:has(.max-btn:not(.hidden))>.action-btn:first-child {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+            border-right: none !important;
         }
 
         .rank-title {
@@ -284,6 +317,7 @@
             font-weight: bold;
             display: block;
             margin-bottom: 4px;
+            padding-right: 100px;
         }
 
         .cost-text {
@@ -721,7 +755,7 @@
     <div class="header">
         <div id="bit-container" class="bits-count">비트: <span id="bits">0</span></div>
         <div style="text-align: right;">
-            Ver 0.1.0<br>
+            Ver 0.0.1<br>
             자동 저장: <span id="save-timer">60</span>s
         </div>
     </div>
@@ -743,11 +777,10 @@
                 <div id="hw-controls">
                     <!-- 행 추가 (Rows) -->
                     <div id="btn-group-rows" class="hidden">
-                        <div class="hw-btn-container"
-                            style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
+                        <div class="hw-btn-container">
                             <button id="btn-rows" class="action-btn" onclick="buyHW('rows')"
-                                style="flex: 1; margin: 0; margin-right: -1px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">행 추가 (Rows)</span>
+                                style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
+                                <span class="rank-title">행 확장</span>
                                 <span id="c-rows" class="cost-text">50 비트 소모</span>
                                 <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
                             </button>
@@ -760,13 +793,12 @@
 
                     <!-- 클럭 가속 (Speed) -->
                     <div id="btn-group-speed" class="hidden">
-                        <div class="hw-btn-container"
-                            style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
+                        <div class="hw-btn-container">
                             <button id="btn-speed" class="action-btn" onclick="buyHW('speed')"
-                                style="flex: 1; margin: 0; margin-right: -1px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
+                                style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
                                 <span class="rank-title">클럭 가속</span>
                                 <span id="c-speed" class="cost-text">10 비트 소모</span>
-                                <span id="eff-speed" class="effect-info">지연시간: 1000ms -> 900ms</span>
+                                <span id="eff-speed" class="effect-info">연산주기: 1000ms -> 900ms</span>
                             </button>
                             <button id="btn-speed-max" class="action-btn max-btn hidden" onclick="buyHWMax('speed')">
                                 <span class="max-count">Max +0</span>
@@ -777,11 +809,10 @@
 
                     <!-- 열 추가 (Cols) -->
                     <div id="btn-group-cols" class="hidden">
-                        <div class="hw-btn-container"
-                            style="display: flex; gap: 0; margin-bottom: 12px; align-items: stretch;">
+                        <div class="hw-btn-container">
                             <button id="btn-cols" class="action-btn" onclick="buyHW('cols')"
-                                style="flex: 1; margin: 0; margin-right: -1px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">열 추가 (Cols)</span>
+                                style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
+                                <span class="rank-title">열 확장</span>
                                 <span id="c-cols" class="cost-text">5 비트 소모</span>
                                 <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
                             </button>
@@ -816,7 +847,7 @@
         </div>
 
         <div id="circuit-area">
-            <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">활성 회로 맵</h3>
+            <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">실시간 연산 현황</h3>
             <div id="bulb-grid" style="color: #444; font-size: 12px;">초기화 중...</div>
         </div>
     </div>
@@ -829,7 +860,7 @@
             <div class="category-nav">
                 <button id="cat-system" class="category-btn active" onclick="switchCategory('system')">시스템 요약</button>
                 <button id="cat-cognitive" class="category-btn" onclick="switchCategory('cognitive')">인지 단계 보너스</button>
-                <button id="cat-scaling" class="category-btn" onclick="switchCategory('scaling')">연구 난이도</button>
+                <button id="cat-scaling" class="category-btn" onclick="switchCategory('scaling')">연구 버전</button>
             </div>
             <div id="sub-tab-container" class="sub-tab-nav hidden">
                 <!-- 동적으로 생성되는 서브 탭들 -->
@@ -868,11 +899,12 @@
         let hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
         let ranks = { spark: 0, impulse: 0 };
         let maxSpark = 0; // 최고 달성 발상 레벨
+        let maxMkTier = 1; // 최고 도달 Mk 버전 (동적 탭 생성용)
+        let consecutiveZeroTicks = 0; // 연속으로 0이 나온 틱 횟수 (3틱 보장용)
         let settings = { offlineProgress: true }; // 기본 설정
         let rankData = null; // JSON에서 로드됨
         let activeCategory = 'system';
         let activeSubTab = '';
-        const HW_PREFIXES = ["", "고급", "정밀", "전문", "첨단", "극한", "양자", "초차원", "이종", "허상"];
 
         // 스토리 컷신 데이터
         const storyData = {
@@ -968,9 +1000,10 @@
         // rankData.json 파일에서 cognitive step 데이터 로드
         async function loadRankData() {
             try {
-                // 현재 페이지의 경로를 기준으로 rankData.json 경로 설정
+                // 현재 페이지의 경로를 기준으로 rankData.json 경로 설정 (캐시 무효화)
                 const jsonPath = new URL('rankData.json', window.location.href).href;
-                const response = await fetch(jsonPath);
+                const cacheBuster = `?t=${Date.now()}`;
+                const response = await fetch(jsonPath + cacheBuster);
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -994,6 +1027,7 @@
                 hardware: hardware,
                 ranks: ranks,
                 maxSpark: maxSpark,
+                maxMkTier: maxMkTier,
                 settings: settings,
                 lastSaveTime: Date.now()
             };
@@ -1047,6 +1081,7 @@
                         ranks.impulse = saveObj.ranks.intuition || 0;
                     }
                     maxSpark = saveObj.maxSpark || ranks.spark || 0;
+                    maxMkTier = saveObj.maxMkTier || 1; // 기존 세이브 호환성
                     if (saveObj.settings) settings = { ...settings, ...saveObj.settings };
                     // 전압 최적화(prob) 누락 시 초기화 (기존 플레이어 호환성)
                     if (hardware.prob === undefined) hardware.prob = 0;
@@ -1069,6 +1104,8 @@
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
                 ranks = { spark: 0, impulse: 0 };
                 maxSpark = 0;
+                maxMkTier = 1;
+                consecutiveZeroTicks = 0;
                 localStorage.setItem('infCompFirstTime', 'true');
                 showCutscene('intro');
                 initGrid();
@@ -1154,21 +1191,15 @@
                 if (activeSubTab !== 'spark' && activeSubTab !== 'impulse') activeSubTab = 'spark';
             } else if (catId === 'scaling') {
                 subNav.classList.remove('hidden');
-                // 현재 도달한 스케일링 티어(수식어) 목록 생성
-                let activeTiers = [];
-                // rows/cols에서 적용된 티어 중 가장 높은 것들 찾기
-                const rMod = getHWModifier('rows', hardware.rows);
-                const cMod = getHWModifier('cols', hardware.cols);
-
-                // 간단하게 도달한 모든 티어를 체크 (0단계는 제외)
-                // 현재 로직상 1(고급)만 있으므로 cols >= 5만 체크 (rows는 원래 빠름)
-                if (hardware.cols >= 5) {
-                    activeTiers.push('tier1'); // 고급
+                // Mk.N 버전 동적 생성 (Mk.2부터 maxMkTier까지)
+                let mkTiers = [];
+                for (let i = 2; i <= maxMkTier; i++) {
+                    mkTiers.push(`mk${i}`);
                 }
 
-                if (activeTiers.length > 0) {
-                    renderSubTabs(activeTiers);
-                    if (!activeTiers.includes(activeSubTab)) activeSubTab = activeTiers[0];
+                if (mkTiers.length > 0) {
+                    renderSubTabs(mkTiers);
+                    if (!mkTiers.includes(activeSubTab)) activeSubTab = mkTiers[0];
                 } else {
                     subNav.classList.add('hidden');
                     activeSubTab = '';
@@ -1181,7 +1212,7 @@
             const container = document.getElementById('sub-tab-container');
             const labels = {
                 'spark': '발상', 'impulse': '충동',
-                'tier1': '고급', 'tier2': '정밀'
+                'mk2': 'Mk.2', 'mk3': 'Mk.3', 'mk4': 'Mk.4', 'mk5': 'Mk.5'
             };
             container.innerHTML = ids.map(id => `
                 <button class="sub-tab-btn ${activeSubTab === id ? 'active' : ''}" onclick="switchSubTab('${id}')">
@@ -1320,6 +1351,7 @@
                 ranks.spark++;
                 maxSpark = Math.max(maxSpark, ranks.spark);
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
+                consecutiveZeroTicks = 0;
                 addLog(`발상 Lv.${ranks.spark}: 사고 확장.`);
             }
             else if (id === 'impulse') {
@@ -1330,6 +1362,7 @@
                 ranks.spark = 0;
                 bits = new Decimal(0);
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
+                consecutiveZeroTicks = 0;
                 addLog(`충동 Lv.${ranks.impulse}: 충동 단계 승급.`);
             }
             initGrid();
@@ -1372,7 +1405,24 @@
                 }
             }
 
-            if (onCount === 0) return new Decimal(0);
+            // 3틱 보장 메커니즘
+            if (onCount === 0) {
+                consecutiveZeroTicks++;
+
+                if (consecutiveZeroTicks >= 3) {
+                    // 강제로 랜덤 전구 1개 켜기
+                    const randomIndex = Math.floor(Math.random() * total);
+                    onCount = 1;
+                    if (doFlash) flash(randomIndex);
+                    consecutiveZeroTicks = 0; // 리셋
+                } else {
+                    // 아직 3틱 안 됨
+                    return new Decimal(0);
+                }
+            } else {
+                // 정상적으로 전구가 켜진 경우 카운터 리셋
+                consecutiveZeroTicks = 0;
+            }
 
             let formulaBonus = new Decimal(1);
 
@@ -1506,8 +1556,8 @@
             updateHWBtn('btn-cols', 'cols');
 
             // 클럭 가속 버튼 업데이트 (소프트캡 표시 추가)
-            let speedEffect = `지연시간: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`;
-            if (hardware.speed >= 5) {
+            let speedEffect = `연산주기: ${Math.floor(calculateDelay(hardware.speed))}ms -> ${Math.floor(calculateDelay(hardware.speed + 1))}ms`;
+            if (hardware.speed >= 12) {
                 speedEffect += ` <span style="color: #f88; font-size: 10px;">(과부하)</span>`;
             }
             updateBtn('btn-speed', getHWCost('speed'), speedEffect);
@@ -1542,15 +1592,17 @@
             let level = hardware[type];
 
             let mod = getHWModifier(type, level);
+            let baseName = type === 'rows' ? "행 확장" : "열 확장";
+
             if (level >= maxVal) {
-                let title = (mod.prefix ? `${mod.prefix} ` : "") + (type === 'cols' ? "열 추가" : "행 추가") + " (최대)";
+                let title = baseName + (mod.version ? ` ${mod.version}` : "") + " (최대)";
                 btn.querySelector('.rank-title').innerText = title;
                 btn.querySelector('.cost-text').innerText = "최대";
                 btn.querySelector('.effect-info').innerText = "제한 도달";
                 btn.classList.remove('affordable');
                 btn.disabled = true;
             } else {
-                let title = (mod.prefix ? `${mod.prefix} ` : "") + (type === 'rows' ? "행 추가 (Rows)" : "열 추가 (Cols)");
+                let title = baseName + (mod.version ? ` ${mod.version}` : "");
                 btn.querySelector('.rank-title').innerText = title;
 
                 let effect = `${type === 'rows' ? '행' : '열'}: ${level} -> ${level + 1} (최대 ${maxVal})`;
@@ -1561,22 +1613,31 @@
         }
 
         function getHWModifier(type, level) {
-            // 현재 수식 기반 가속 단계 정의 (0: 없음, 1: 고급, ...)
-            let activeTier = 0;
+            // Mk.N은 비용 가속 단계를 나타냄 (레벨이 아님)
+            let mkTier = 1;  // 기본 Mk.1 (표시 안 함)
             let penalties = [];
 
-            if (type === 'rows') {
-                // 행 추가는 원래 빠르게 증가하므로 수식어 없음
-            }
             if (type === 'cols') {
                 if (level >= 5) {
-                    activeTier = 1;
-                    penalties.push({ name: "회로 간섭 발생", desc: "지수 가중치 (lv-3)^1.5 적용" });
+                    mkTier = 2;  // Mk.2: 회로 간섭 발생
+                    penalties.push({
+                        name: "회로 간섭 발생",
+                        desc: "지수 가중치 (lv-3)^1.5 적용"
+                    });
                 }
+                // 향후 확장: level >= 10이면 mkTier = 3 등
+            }
+
+            // 행은 현재 가속 없음 (mkTier = 1 유지)
+
+            // 최고 Mk 버전 추적
+            if (mkTier > maxMkTier) {
+                maxMkTier = mkTier;
             }
 
             return {
-                prefix: HW_PREFIXES[activeTier] || "",
+                mkTier: mkTier,
+                version: mkTier > 1 ? `Mk.${mkTier}` : "",
                 allPenalties: penalties,
                 latestPenalty: penalties.length > 0 ? penalties[penalties.length - 1].name : ""
             };
@@ -1588,7 +1649,7 @@
 
             const costEl = btn.querySelector('.cost-text');
             const effEl = btn.querySelector('.effect-info');
-            if (costEl) costEl.innerText = `비용: ${format(cost)} 비트`;
+            if (costEl) costEl.innerText = `${format(cost)} 비트 소모`;
             if (effEl) effEl.innerHTML = effectText; // HTML 허용 (페널티 메시지용)
 
             if (bits.gte(cost)) btn.classList.add('affordable');
@@ -1680,36 +1741,39 @@
                 }
             }
             else if (activeCategory === 'scaling') {
-                // Research Difficulty (Prefix Tabs)
-                if (activeSubTab === 'tier1') {
-                    // 고급 티어 정보
+                // Research Version (Mk.N Tabs)
+                const mkMatch = activeSubTab.match(/^mk(\d+)$/);
+                if (mkMatch) {
+                    const mkNum = parseInt(mkMatch[1]);
                     html = `<div class="scaling-info-container">`;
 
-                    const types = ['cols']; // 행 추가는 제외
+                    const types = ['rows', 'cols'];
                     let appliedAny = false;
                     types.forEach(type => {
                         const level = hardware[type];
-                        const label = type === 'rows' ? '행 추가 (Rows)' : '열 추가 (Cols)';
+                        const label = type === 'rows' ? '행 확장' : '열 확장';
                         const mod = getHWModifier(type, level);
 
-                        if (mod.prefix === '고급') {
+                        if (mod.mkTier === mkNum) {
                             appliedAny = true;
                             let formula = type === 'rows' ? "lv ^ 1.5" : "(lv - 3) ^ 1.5";
+                            let startLevel = type === 'cols' ? 5 : 999; // 행은 현재 가속 없음
                             html += `<div class="scaling-item" style="border:none; padding:0;">
-                                        <div style="color:var(--neon); font-size:16px; margin-bottom:10px;"><b>고급 ${label}</b></div>
+                                        <div style="color:var(--neon); font-size:16px; margin-bottom:10px;"><b>${label} Mk.${mkNum}</b></div>
                                         <div class="scaling-detail">
                                             - 가속 수식: <b>${formula}</b><br>
+                                            - 적용 시작: <b>레벨 ${startLevel}+</b><br>
                                             - 현재 레벨: <b>${level}</b>
                                         </div>
                                      </div>`;
                         }
                     });
                     if (!appliedAny) {
-                        html += `<div style="color:#666; font-size:13px;">현재 이 난이도가 적용된 하드웨어가 없습니다.</div>`;
+                        html += `<div style="color:#666; font-size:13px;">현재 이 버전이 적용된 하드웨어가 없습니다.</div>`;
                     }
                     html += `</div>`;
                 } else {
-                    html = '<div style="padding:10px; color:#666;">현재 발견하지 못한 연구 단계이거나 해당 정보가 없습니다.</div>';
+                    html = '<div style="padding:10px; color:#666;">현재 발견하지 못한 연구 버전이거나 해당 정보가 없습니다.</div>';
                 }
             }
 
@@ -1760,6 +1824,15 @@
             if (loaded) {
                 loadGame();
                 initGrid();
+
+                // 최초 실행 시 3틱 보장 힌트 표시 (한 번만)
+                const hintShown = localStorage.getItem('infCompHintShown');
+                if (!hintShown && ranks.spark === 0 && bits.eq(0)) {
+                    setTimeout(() => {
+                        addLog("비밀인데, 운이 없어도 연산 3번마다 1개의 전구가 켜지는 것이 보장되어 있습니다.");
+                        localStorage.setItem('infCompHintShown', 'true');
+                    }, 1000); // 1초 후 표시
+                }
 
                 // 최초 실행 또는 강제 컷신 조건 체크
                 const isFirstTime = localStorage.getItem('infCompFirstTime') !== 'false';
