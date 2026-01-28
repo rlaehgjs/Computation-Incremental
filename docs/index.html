@@ -1460,7 +1460,7 @@
             if (ranks.spark >= 6) {
                 let threshold = Math.ceil((hardware.rows * hardware.cols) / 2);
                 if (onCount > threshold) {
-                    let bonusRaw = 1.2 ** (onCount - threshold);
+                    let bonusRaw = 1.25 ** (onCount - threshold);
                     if (bonusRaw > 100) {
                         bonusRaw = 100 + Math.pow(bonusRaw - 100, 0.5);
                     }
