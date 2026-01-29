@@ -726,6 +726,29 @@
                 letter-spacing: 8px;
             }
         }
+
+        /* 푸터 스타일 */
+        footer {
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-top: 1px solid #222;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            width: 900px;
+            /* 로그 박스 너비와 맞춤 */
+            box-sizing: border-box;
+        }
+
+        footer b {
+            color: var(--neon);
+        }
+
+        .credits-text {
+            line-height: 1.8;
+            opacity: 0.8;
+        }
     </style>
 </head>
 
@@ -894,6 +917,13 @@
 
     <div class="log" id="game-log">> 시스템 준비 완료.</div>
 
+    <footer>
+        <div class="credits-text">
+            스토리 이미지, 코딩, 디자인 파트는 AI 툴을 사용하여 제작되었습니다.<br>
+            Inspired by <b>Incremental Mass Rewritten</b>
+        </div>
+    </footer>
+
     <script>
         let bits = new Decimal(0);
         let hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
@@ -915,6 +945,16 @@
                 { img: 'assets/images/cutscenes/1-4-NW.png', text: '시스템 가동. ...시작해 볼까?' }
             ]
         };
+
+        function preloadStoryImages() {
+            Object.values(storyData).forEach(scenes => {
+                scenes.forEach(scene => {
+                    const img = new Image();
+                    img.src = scene.img;
+                });
+            });
+            console.log("스토리 이미지 프리로딩 완료.");
+        }
 
         let currentStory = null;
         let currentCutsceneIndex = 0;
@@ -1836,6 +1876,7 @@
             if (loaded) {
                 loadGame();
                 initGrid();
+                preloadStoryImages();
 
                 // 최초 실행 시 3틱 보장 힌트 표시 (한 번만)
                 const hintShown = localStorage.getItem('infCompHintShown');
