@@ -67,6 +67,12 @@
             gap: 20px;
         }
 
+        .main-sub-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         .header {
             width: 900px;
             display: flex;
@@ -127,24 +133,24 @@
             flex-shrink: 0;
         }
 
-        .help-btn .tooltip {
+        .tooltip {
             visibility: hidden;
             position: absolute;
-            bottom: 100%;
+            top: 100%;
             left: 50%;
             transform: translateX(-50%);
             background: var(--panel-bg);
             border: 1px solid var(--neon);
             color: var(--white);
-            padding: 8px 12px;
+            padding: 10px 14px;
             border-radius: 4px;
-            margin-bottom: 5px;
+            margin-top: 5px;
             font-size: 11px;
             z-index: 1000;
             pointer-events: none;
             display: block;
             width: auto;
-            min-width: 200px;
+            min-width: 220px;
             max-width: 400px;
             white-space: normal;
             word-wrap: break-word;
@@ -153,22 +159,35 @@
             box-sizing: border-box;
             opacity: 0;
             transition: opacity 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
-        .help-btn:hover .tooltip {
+        .tooltip-title {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--neon);
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(0, 255, 153, 0.2);
+            padding-bottom: 4px;
+        }
+
+        .help-btn:hover .tooltip,
+        .res-icon-btn:hover .tooltip {
             visibility: visible;
             opacity: 1;
         }
 
-        .help-btn:hover .tooltip::after {
+        .help-btn:hover .tooltip::after,
+        .res-icon-btn:hover .tooltip::after {
             content: '';
             position: absolute;
-            top: 100%;
+            bottom: 100%;
             left: 50%;
             transform: translateX(-50%);
             border: 5px solid transparent;
-            border-top-color: var(--neon);
-            margin-bottom: -5px;
+            border-bottom-color: var(--neon);
+            margin-top: -5px;
         }
 
         /* 회로 영역 (로그 위로 이동) */
@@ -749,6 +768,121 @@
             line-height: 1.8;
             opacity: 0.8;
         }
+
+        /* 깜빡이는 애니메이션 */
+        .blink-btn {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                box-shadow: 0 0 5px #f88;
+                opacity: 1;
+            }
+
+            50% {
+                box-shadow: 0 0 20px #f88;
+                opacity: 0.8;
+            }
+
+            100% {
+                box-shadow: 0 0 5px #f88;
+                opacity: 1;
+            }
+        }
+
+        /* 헤더 아이콘 버튼 스타일 */
+        .res-icon-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: transparent;
+            border: none;
+            padding: 8px 0;
+            border-radius: 4px;
+            font-size: 20px;
+            color: #fff;
+            position: relative;
+        }
+
+        .icon-box {
+            width: 28px;
+            height: 28px;
+            border: 1px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #aaa;
+            background: #111;
+        }
+
+        .res-secondary {
+            font-size: 14px;
+            color: #888;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        .gear-icon-box {
+            border-color: #666;
+        }
+
+        @keyframes flyToHeader {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--target-x), var(--target-y)) scale(0.25);
+                opacity: 0.8;
+            }
+        }
+
+        .chapter-bulb-icon.fly {
+            animation: flyToHeader 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* 탭 하이라이트 애니메이션 */
+        .highlight-tab {
+            animation: tabFlash 2s infinite !important;
+            border-color: #f88 !important;
+            color: #f88 !important;
+            box-shadow: 0 0 10px rgba(255, 136, 136, 0.3);
+        }
+
+        @keyframes tabFlash {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 136, 136, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(255, 136, 136, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 0 5px rgba(255, 136, 136, 0.3);
+            }
+        }
+
+        /* 도착 시 강조 효과 (5초 지속용) */
+        .res-highlight {
+            animation: resGlow 1s ease-in-out infinite alternate;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-radius: 4px;
+        }
+
+        @keyframes resGlow {
+            0% {
+                box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+            }
+
+            100% {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+            }
+        }
     </style>
 </head>
 
@@ -767,17 +901,51 @@
     </div>
 
     <div id="chapter-overlay">
-        <svg class="chapter-bulb-icon" viewBox="0 0 24 24">
+        <svg id="chapter-icon-bulb" class="chapter-bulb-icon" viewBox="0 0 24 24">
             <path
                 d="M12,2A7,7,0,0,0,5,9c0,2.38,1.19,4.47,3,5.74V17a1,1,0,0,0,1,1h6a1,1,0,0,0,1-1V14.74c1.81-1.27,3-3.36,3-5.74A7,7,0,0,0,12,2Zm2,14H10V14.15l1-0.7c1.33-0.93,1.33-0.93,1.33-2.45h1.34c0,1.52,0,1.52,1.33,2.45l1,0.7V16ZM11.33,9h1.34V12H11.33V9ZM15,19H9v1a1,1,0,0,0,1,1h4a1,1,0,0,0,1-1V19Z" />
+        </svg>
+        <svg id="chapter-icon-gear" class="chapter-bulb-icon hidden" viewBox="0 0 24 24">
+            <path
+                d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.97 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
         </svg>
         <h1 id="chapter-main-text">CHAPTER 1</h1>
         <div id="chapter-sub-text">모든 것의 시작</div>
     </div>
 
-    <div class="header">
-        <div id="bit-container" class="bits-count">비트: <span id="bits">0</span></div>
-        <div style="text-align: right;">
+    <div class="header" style="align-items: flex-start; padding: 20px;">
+        <div id="header-icons" style="display: flex; flex-direction: column; gap: 5px; align-items: flex-start;">
+            <div id="bits-icon-container" class="res-icon-btn">
+                <div class="icon-box" style="border-color: #ffca28;">
+                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #ffca28;">
+                        <path
+                            d="M12,2A7,7,0,0,0,5,9c0,2.38,1.19,4.47,3,5.74V17a1,1,0,0,0,1,1h6a1,1,0,0,0,1-1V14.74c1.81-1.27,3-3.36,3-5.74A7,7,0,0,0,12,2Zm2,14H10V14.15l1-0.7c1.33-0.93,1.33-0.93,1.33-2.45h1.34c0,1.52,0,1.52,1.33,2.45l1,0.7V16ZM11.33,9h1.34V12H11.33V9ZM15,19H9v1a1,1,0,0,0,1,1h4a1,1,0,0,0,1-1V19Z" />
+                    </svg>
+                </div>
+                <span id="bits-icon-val" style="font-weight: bold;">0</span>
+                <span id="bits-bps" class="res-secondary">(+0/s)</span>
+                <span class="tooltip">
+                    <b class="tooltip-title">비트 (Bits)</b>
+                    전구가 깜빡일 때마다 획득하며, 하드웨어 업그레이드 및 발상에 사용됩니다.
+                </span>
+            </div>
+            <div id="parts-icon-container" class="res-icon-btn hidden">
+                <div class="icon-box gear-icon-box">
+                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #aaa;">
+                        <path
+                            d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.97 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.97 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" />
+                    </svg>
+                </div>
+                <span id="parts-icon-val" style="font-weight: bold;">0</span>
+                <span id="parts-pending" class="res-secondary">(▲ +0)</span>
+                <span class="tooltip">
+                    <b class="tooltip-title">부품 (Parts)</b>
+                    발상 12레벨 이상에서 해체를 통해 획득할 수 있습니다.
+                </span>
+            </div>
+        </div>
+
+        <div style="text-align: right; flex-grow: 1;">
             Ver 0.0.1<br>
             자동 저장: <span id="save-timer">60</span>s
         </div>
@@ -790,88 +958,158 @@
     </div>
 
     <div id="tab-main" class="tab-content active">
-        <div class="panel-container">
-            <div class="panel">
-                <div class="section-header">
-                    <h3 style="color: var(--neon); margin:0;">하드웨어 제어</h3>
-                    <button class="help-btn">? <span class="tooltip">전구는 매 사이클마다 50% 확률로 켜지며 정보를 생산합니다.</span></button>
+        <div class="sub-tab-nav"
+            style="background: none; border-bottom: 2px solid #222; margin-bottom: 20px; padding: 0 0 10px 0;">
+            <button id="main-sub-btn-core" class="sub-tab-btn active" onclick="switchMainSubTab('core')">코어</button>
+            <button id="main-sub-btn-disassemble" class="sub-tab-btn hidden"
+                onclick="switchMainSubTab('disassemble')">해체</button>
+        </div>
+
+        <div id="main-sub-core" class="main-sub-content">
+            <div class="panel-container">
+                <div class="panel">
+                    <div class="section-header">
+                        <h3 style="color: var(--neon); margin:0;">하드웨어 제어</h3>
+                        <button class="help-btn">? <span class="tooltip">전구는 매 사이클마다 50% 확률로 켜지며 정보를
+                                생산합니다.</span></button>
+                    </div>
+
+                    <div id="hw-controls">
+                        <!-- 행 추가 (Rows) -->
+                        <div id="btn-group-rows" class="hidden">
+                            <div class="hw-btn-container">
+                                <button id="btn-rows" class="action-btn" onclick="buyHW('rows')"
+                                    style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
+                                    <span class="rank-title">행 확장</span>
+                                    <span id="c-rows" class="cost-text">50 비트 소모</span>
+                                    <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
+                                </button>
+                                <button id="btn-rows-max" class="action-btn max-btn hidden" onclick="buyHWMax('rows')">
+                                    <span class="max-count">Max +0</span>
+                                    <span class="max-cost" style="color: #aaa;">0</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 클럭 가속 (Speed) -->
+                        <div id="btn-group-speed" class="hidden">
+                            <div class="hw-btn-container">
+                                <button id="btn-speed" class="action-btn" onclick="buyHW('speed')"
+                                    style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
+                                    <span class="rank-title">클럭 가속</span>
+                                    <span id="c-speed" class="cost-text">10 비트 소모</span>
+                                    <span id="eff-speed" class="effect-info">연산주기: 1000ms -> 900ms</span>
+                                </button>
+                                <button id="btn-speed-max" class="action-btn max-btn hidden"
+                                    onclick="buyHWMax('speed')">
+                                    <span class="max-count">Max +0</span>
+                                    <span class="max-cost" style="color: #aaa;">0</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 열 추가 (Cols) -->
+                        <div id="btn-group-cols" class="hidden">
+                            <div class="hw-btn-container">
+                                <button id="btn-cols" class="action-btn" onclick="buyHW('cols')"
+                                    style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
+                                    <span class="rank-title">열 확장</span>
+                                    <span id="c-cols" class="cost-text">5 비트 소모</span>
+                                    <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
+                                </button>
+                                <button id="btn-cols-max" class="action-btn max-btn hidden" onclick="buyHWMax('cols')">
+                                    <span class="max-count">Max +0</span>
+                                    <span class="max-cost" style="color: #aaa;">0</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="hw-controls">
-                    <!-- 행 추가 (Rows) -->
-                    <div id="btn-group-rows" class="hidden">
-                        <div class="hw-btn-container">
-                            <button id="btn-rows" class="action-btn" onclick="buyHW('rows')"
-                                style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">행 확장</span>
-                                <span id="c-rows" class="cost-text">50 비트 소모</span>
-                                <span id="eff-rows" class="effect-info">행: 1 -> 2 (최대 4)</span>
-                            </button>
-                            <button id="btn-rows-max" class="action-btn max-btn hidden" onclick="buyHWMax('rows')">
-                                <span class="max-count">Max +0</span>
-                                <span class="max-cost" style="color: #aaa;">0</span>
-                            </button>
-                        </div>
+                <div class="panel">
+                    <div class="section-header">
+                        <h3 style="color: var(--neon); margin:0;">인지 단계</h3>
+                        <button class="help-btn">? <span class="tooltip">상위 단계 진입 시 하위 단계 자원을 소모합니다.</span></button>
                     </div>
 
-                    <!-- 클럭 가속 (Speed) -->
-                    <div id="btn-group-speed" class="hidden">
-                        <div class="hw-btn-container">
-                            <button id="btn-speed" class="action-btn" onclick="buyHW('speed')"
-                                style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">클럭 가속</span>
-                                <span id="c-speed" class="cost-text">10 비트 소모</span>
-                                <span id="eff-speed" class="effect-info">연산주기: 1000ms -> 900ms</span>
-                            </button>
-                            <button id="btn-speed-max" class="action-btn max-btn hidden" onclick="buyHWMax('speed')">
-                                <span class="max-count">Max +0</span>
-                                <span class="max-cost" style="color: #aaa;">0</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 열 추가 (Cols) -->
-                    <div id="btn-group-cols" class="hidden">
-                        <div class="hw-btn-container">
-                            <button id="btn-cols" class="action-btn" onclick="buyHW('cols')"
-                                style="flex: 1; margin: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; position: relative; z-index: 1;">
-                                <span class="rank-title">열 확장</span>
-                                <span id="c-cols" class="cost-text">5 비트 소모</span>
-                                <span id="eff-cols" class="effect-info">열: 1 -> 2 (최대 4)</span>
-                            </button>
-                            <button id="btn-cols-max" class="action-btn max-btn hidden" onclick="buyHWMax('cols')">
-                                <span class="max-count">Max +0</span>
-                                <span class="max-cost" style="color: #aaa;">0</span>
-                            </button>
-                        </div>
+                    <div id="rank-controls">
+                        <button id="btn-spark" class="action-btn" onclick="rankUp('spark')">
+                            <span class="rank-title">발상 Lv.<span id="lv-spark">0</span></span>
+                            <span id="c-spark" class="cost-text">5 비트 소모</span>
+                            <div id="ms-spark" class="milestones"></div>
+                        </button>
+                        <button id="btn-impulse" class="action-btn hidden" onclick="rankUp('impulse')">
+                            <span class="rank-title">충동 Lv.<span id="lv-impulse">0</span></span>
+                            <span id="c-impulse" class="cost-text">발상 Lv.4 필요</span>
+                            <div id="ms-impulse" class="milestones"></div>
+                        </button>
                     </div>
                 </div>
             </div>
 
-            <div class="panel">
-                <div class="section-header">
-                    <h3 style="color: var(--neon); margin:0;">인지 단계</h3>
-                    <button class="help-btn">? <span class="tooltip">상위 단계 진입 시 하위 단계 자원을 소모합니다.</span></button>
-                </div>
-
-                <div id="rank-controls">
-                    <button id="btn-spark" class="action-btn" onclick="rankUp('spark')">
-                        <span class="rank-title">발상 Lv.<span id="lv-spark">0</span></span>
-                        <span id="c-spark" class="cost-text">5 비트 소모</span>
-                        <div id="ms-spark" class="milestones"></div>
-                    </button>
-                    <button id="btn-impulse" class="action-btn hidden" onclick="rankUp('impulse')">
-                        <span class="rank-title">충동 Lv.<span id="lv-impulse">0</span></span>
-                        <span id="c-impulse" class="cost-text">발상 Lv.4 필요</span>
-                        <div id="ms-impulse" class="milestones"></div>
-                    </button>
-                </div>
+            <div id="circuit-area">
+                <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">실시간 연산 현황</h3>
+                <div id="bulb-grid" style="color: #444; font-size: 12px;">초기화 중...</div>
             </div>
         </div>
 
-        <div id="circuit-area">
-            <h3 style="color: #666; font-size: 14px; margin: 0 0 10px 0;">실시간 연산 현황</h3>
-            <div id="bulb-grid" style="color: #444; font-size: 12px;">초기화 중...</div>
+        <div id="main-sub-disassemble" class="main-sub-content hidden">
+            <div id="disassemble-initial-view">
+                <div class="panel" style="width: 100%; box-sizing: border-box;">
+                    <div class="section-header">
+                        <h3 style="color: #f88; margin:0;">회로 해체</h3>
+                        <button class="help-btn">? <span class="tooltip">현재까지의 진행 상황을 초기화하고 고성능 연산 장치로 교체하기 위한 '부품'을
+                                획득합니다.</span></button>
+                    </div>
+
+                    <div
+                        style="background: rgba(255, 0, 0, 0.05); border: 1px solid #522; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="color: #ccc; line-height: 1.6;">
+                            시스템이 한계에 도달했습니다. 현재의 조잡한 회로로는 더 이상의 효율을 낼 수 없습니다.<br>
+                            모든 것을 분해하여 핵심 부품을 추출하십시오. 추출된 부품은 새로운 시대의 연산기를 구축하는 밑거름이 될 것입니다.
+                        </p>
+                        <ul style="color: #888; font-size: 13px;">
+                            <li>초기화 항목: 비트, 하드웨어(행, 열, 속도), 인지 단계(발상, 충동)</li>
+                            <li>유지 항목: 부품, 특정 영구 업그레이드(추후 추가)</li>
+                        </ul>
+                    </div>
+
+                    <div style="text-align: center; padding: 30px; border: 1px dashed #444; border-radius: 8px;">
+                        <div style="font-size: 18px; color: #aaa; margin-bottom: 20px;">
+                            예상 획득 부품: <span id="pending-parts"
+                                style="color: #fff; font-weight: bold; font-size: 24px;">0</span> 부품
+                        </div>
+                        <button id="btn-disassemble" class="action-btn blink-btn" onclick="disassemble()"
+                            style="width: 300px; margin: 0 auto; display: block; text-align: center; border-color: #f88; color: #f88; padding: 20px;">
+                            <span style="font-size: 20px; font-weight: bold;">[ 회로 해체 실행 ]</span>
+                        </button>
+                        <div id="disassemble-requirement" style="color: #644; font-size: 12px; margin-top: 10px;">
+                            (잠금 해제 조건: 발상 Lv.12)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="disassemble-upgrade-view" class="hidden">
+                <div class="panel" style="width: 100%; box-sizing: border-box;">
+                    <div class="section-header">
+                        <h3 style="color: var(--neon); margin:0;">고급 부품 업그레이드</h3>
+                    </div>
+                    <div id="parts-upgrades-container"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px;">
+                        <div
+                            style="color: #666; font-style: italic; grid-column: span 2; text-align: center; padding: 20px;">
+                            추가 업그레이드가 곧 잠금 해제됩니다...
+                        </div>
+                    </div>
+                    <div style="border-top: 1px solid #222; margin-top: 20px; padding-top: 20px; text-align: center;">
+                        <button class="action-btn" onclick="disassemble()"
+                            style="width: 200px; margin: 0 auto; display: inline-block; text-align: center; border-color: #f88; color: #f88;">
+                            추가 해체 실행
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -908,9 +1146,18 @@
                 <button class="setting-btn" onclick="saveGame(true)">강제 저장</button>
                 <button class="setting-btn" onclick="exportGame()">데이터 내보내기 (클립보드 복사)</button>
                 <button class="setting-btn" onclick="importGame()">데이터 불러오기 (텍스트 입력)</button>
-                <button class="setting-btn" onclick="resetGame()" style="color: #f88; border-color: #522;">전체
+                <button class="setting-btn" reset-confirm="false" onclick="resetGame()"
+                    style="color: #f88; border-color: #522;">전체
                     초기화</button>
-                <button class="setting-btn" style="margin-top: 10px;" onclick="showCutscene('intro')">스토리 다시 보기</button>
+
+                <div class="setting-title" style="margin-top: 20px;">스토리 다시 보기</div>
+                <div style="display: flex; gap: 5px;">
+                    <button class="setting-btn" style="flex: 1;" onclick="showCutscene('intro')">Chapter 1</button>
+                    <button id="btn-replay-ch2" class="setting-btn hidden" style="flex: 1;"
+                        onclick="showCutscene('chapter2')">Chapter 2</button>
+                    <button id="btn-replay-ch3" class="setting-btn hidden" style="flex: 1;"
+                        onclick="showCutscene('chapter3')">Chapter 3</button>
+                </div>
             </div>
         </div>
     </div>
@@ -926,10 +1173,14 @@
 
     <script>
         let bits = new Decimal(0);
+        let parts = new Decimal(0);
         let hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
         let ranks = { spark: 0, impulse: 0 };
         let maxSpark = 0; // 최고 달성 발상 레벨
         let maxMkTier = 1; // 최고 도달 Mk 버전 (동적 탭 생성용)
+        let hasDisassembled = false; // 한 번이라도 해체했는지 여부
+        let hasChapter2Shown = false; // 챕터 2 스토리가 이미 재생되었는지 여부
+        let bitHistory = []; // BPS 계산용 (최근 5초 gain 기록)
         let consecutiveZeroTicks = 0; // 연속으로 0이 나온 틱 횟수 (3틱 보장용)
         let settings = { offlineProgress: true }; // 기본 설정
         let rankData = null; // JSON에서 로드됨
@@ -938,17 +1189,40 @@
 
         // 스토리 컷신 데이터
         const storyData = {
-            intro: [
-                { img: 'assets/images/cutscenes/1-1-NW.png', text: '졸업장은 냄비 받침으로 쓴 지 오래다. 멍청한 상사, 의미 없는 회의... 그런 건 내 알 바 아니다. 나에겐 이 고철들이 더 대하기 편하니까.' },
-                { img: 'assets/images/cutscenes/1-2-NW.png', text: '하지만 천재도 밥은 먹어야 한다. 월세 낼 날짜는 다가오고, 남은 건 창고 가득한 재고 부품들 뿐.' },
-                { img: 'assets/images/cutscenes/1-3-NW.png', text: '팔아서 돈을 만들 수 없다면, 만들어서 돈을 벌게 하면 된다. 기존의 컴퓨터 구조는 너무 비효율적이야. 내가 직접 설계한다. 이론상 완벽한, 무한 연산기를.' },
-                { img: 'assets/images/cutscenes/1-4-NW.png', text: '시스템 가동. ...시작해 볼까?' }
-            ]
+            intro: {
+                id: 'intro',
+                title: 'CHAPTER 1',
+                subtitle: '모든 것의 시작',
+                scenes: [
+                    { img: 'assets/images/cutscenes/1-1-NW.png', text: '졸업장은 냄비 받침으로 쓴 지 오래다. 멍청한 상사, 의미 없는 회의... 그런 건 내 알 바 아니다. 나에겐 이 고철들이 더 대하기 편하니까.' },
+                    { img: 'assets/images/cutscenes/1-2-NW.png', text: '하지만 천재도 밥은 먹어야 한다. 월세 낼 날짜는 다가오고, 남은 건 창고 가득한 재고 부품들 뿐.' },
+                    { img: 'assets/images/cutscenes/1-3-NW.png', text: '팔아서 돈을 만들 수 없다면, 만들어서 돈을 벌게 하면 된다. 기존의 컴퓨터 구조는 너무 비효율적이야. 내가 직접 설계한다. 이론상 완벽한, 무한 연산기를.' },
+                    { img: 'assets/images/cutscenes/1-4-NW.png', text: '시스템 가동. ...시작해 볼까?' }
+                ]
+            },
+            chapter2: {
+                id: 'chapter2',
+                title: 'CHAPTER 2',
+                subtitle: '해체와 재조립',
+                scenes: [
+                    { img: 'assets/images/cutscenes/1-3-NW.png', text: '지금껏 만든 것들은 그저 장난감에 불과했다. 이 조잡한 회로들을 모두 뜯어내는 것부터가 시작이다.' },
+                    { img: 'assets/images/cutscenes/1-2-NW.png', text: '쓸모없어진 구리 선과 기판들 속에서 쓸만한 부품들을 골라낸다. 고생은 좀 하겠지만, 이건 더 높은 곳으로 가기 위한 필수 과정이다.' },
+                    { img: 'assets/images/cutscenes/1-4-NW.png', text: '자, 이제 진짜 \'연산기\'를 만들어 볼까?' }
+                ]
+            },
+            chapter3: {
+                id: 'chapter3',
+                title: 'CHAPTER 3',
+                subtitle: '진보의 한계',
+                scenes: [
+                    { img: 'assets/images/cutscenes/1-1-NW.png', text: '더 이상 부품만으로는 부족하다. 물리적인 한계를 넘어서야 한다. (내용 추가 예정)' }
+                ]
+            }
         };
 
         function preloadStoryImages() {
-            Object.values(storyData).forEach(scenes => {
-                scenes.forEach(scene => {
+            Object.values(storyData).forEach(chapter => {
+                chapter.scenes.forEach(scene => {
                     const img = new Image();
                     img.src = scene.img;
                 });
@@ -956,14 +1230,15 @@
             console.log("스토리 이미지 프리로딩 완료.");
         }
 
-        let currentStory = null;
+        let currentChapter = null;
         let currentCutsceneIndex = 0;
         let isGamePaused = false;
 
         window.showCutscene = function (storyId) {
-            currentStory = storyData[storyId];
-            if (!currentStory) return;
+            const chapter = storyData[storyId];
+            if (!chapter) return;
 
+            currentChapter = chapter;
             currentCutsceneIndex = 0;
             isGamePaused = true;
             document.getElementById('cutscene-overlay').classList.remove('hidden');
@@ -971,16 +1246,16 @@
         }
 
         function updateCutsceneUI() {
-            const scene = currentStory[currentCutsceneIndex];
+            const scene = currentChapter.scenes[currentCutsceneIndex];
             document.getElementById('cutscene-image').src = scene.img;
             document.getElementById('cutscene-text-box').innerText = scene.text;
 
             document.getElementById('cutscene-prev').disabled = (currentCutsceneIndex === 0);
-            document.getElementById('cutscene-next').innerText = (currentCutsceneIndex === currentStory.length - 1) ? "시작하기" : "다음";
+            document.getElementById('cutscene-next').innerText = (currentCutsceneIndex === currentChapter.scenes.length - 1) ? "완료" : "다음";
         }
 
         window.nextCutscene = function () {
-            if (currentCutsceneIndex < currentStory.length - 1) {
+            if (currentCutsceneIndex < currentChapter.scenes.length - 1) {
                 currentCutsceneIndex++;
                 updateCutsceneUI();
             } else {
@@ -997,25 +1272,69 @@
 
         window.skipCutscene = function () {
             document.getElementById('cutscene-overlay').classList.add('hidden');
-            playChapterAnimation();
+            playChapterAnimation(currentChapter.title, currentChapter.subtitle);
         }
 
-        window.playChapterAnimation = function () {
+        window.playChapterAnimation = function (title, subtitle) {
             const overlay = document.getElementById('chapter-overlay');
-            const bulb = overlay.querySelector('.chapter-bulb-icon');
+            const bulb = document.getElementById('chapter-icon-bulb');
+            const gear = document.getElementById('chapter-icon-gear');
             const mainText = document.getElementById('chapter-main-text');
             const subText = document.getElementById('chapter-sub-text');
 
+            if (title) mainText.innerText = title;
+            if (subtitle) subText.innerText = subtitle;
+
+            // 챕터 2일 경우 전구를 톱니바퀴로 교체
+            const isChapter2 = (title === 'CHAPTER 2');
+            if (isChapter2) {
+                bulb.classList.add('hidden');
+                gear.classList.remove('hidden');
+                gear.classList.remove('fly');
+            } else {
+                bulb.classList.remove('hidden');
+                gear.classList.add('hidden');
+            }
+
             overlay.classList.add('active');
-            bulb.classList.add('animate');
+            const targetIcon = isChapter2 ? gear : bulb;
+            targetIcon.classList.add('animate');
             mainText.classList.add('animate');
             subText.classList.add('animate');
 
+            // 아이콘이 축소하며 헤더로 이동하는 연출 (사라지는 시점인 4초에 시작)
+            setTimeout(() => {
+                const targetContainerId = isChapter2 ? 'parts-icon-container' : 'bits-icon-container';
+                const targetEl = document.getElementById(targetContainerId).querySelector('.icon-box');
+                const headerRect = targetEl.getBoundingClientRect();
+                const iconRect = targetIcon.getBoundingClientRect();
+
+                // 원본 크기(scale 1.0) 기준으로 중심 좌표 차이 계산
+                const dx = (headerRect.left + headerRect.width / 2) - (iconRect.left + iconRect.width / 2);
+                const dy = (headerRect.top + headerRect.height / 2) - (iconRect.top + iconRect.height / 2);
+
+                targetIcon.style.setProperty('--target-x', `${dx}px`);
+                targetIcon.style.setProperty('--target-y', `${dy}px`);
+                targetIcon.classList.add('fly');
+
+                // 비행이 완료되는 시점(약 1.5초 후)에 헤더 강조 효과 시작
+                setTimeout(() => {
+                    const headerContainer = document.getElementById(targetContainerId);
+                    headerContainer.classList.add('res-highlight');
+                    // 5초간 강조 후 제거
+                    setTimeout(() => {
+                        headerContainer.classList.remove('res-highlight');
+                    }, 5000);
+                }, 1500);
+            }, 4000);
+
             setTimeout(() => {
                 overlay.classList.remove('active');
-                // 애니메이션 클래스 제거 (나중에 다시 볼 때를 위해)
                 setTimeout(() => {
                     bulb.classList.remove('animate');
+                    bulb.classList.remove('fly');
+                    gear.classList.remove('animate');
+                    gear.classList.remove('fly');
                     mainText.classList.remove('animate');
                     subText.classList.remove('animate');
 
@@ -1026,7 +1345,7 @@
                     }
                     saveGame();
                 }, 1000);
-            }, 5000); // 5초 동안 노출
+            }, isChapter2 ? 4500 : 5000); // 챕터별 연출 시간에 따라 조정
         }
 
         function format(value, places = 3) {
@@ -1064,10 +1383,13 @@
         function saveGame(notify = false) {
             const saveObj = {
                 bits: bits.toString(),
+                parts: parts.toString(),
                 hardware: hardware,
                 ranks: ranks,
                 maxSpark: maxSpark,
                 maxMkTier: maxMkTier,
+                hasDisassembled: hasDisassembled,
+                hasChapter2Shown: hasChapter2Shown,
                 settings: settings,
                 lastSaveTime: Date.now()
             };
@@ -1113,6 +1435,7 @@
                 try {
                     const saveObj = JSON.parse(saveStr);
                     bits = new Decimal(saveObj.bits);
+                    parts = new Decimal(saveObj.parts || 0);
                     hardware = saveObj.hardware;
                     ranks = saveObj.ranks;
                     // 호환성을 위한 예외 처리 (이전 버전에서 impulse/intuition이었을 경우)
@@ -1121,7 +1444,9 @@
                         ranks.impulse = saveObj.ranks.intuition || 0;
                     }
                     maxSpark = saveObj.maxSpark || ranks.spark || 0;
-                    maxMkTier = saveObj.maxMkTier || 1; // 기존 세이브 호환성
+                    maxMkTier = saveObj.maxMkTier || 1;
+                    hasDisassembled = saveObj.hasDisassembled || false;
+                    hasChapter2Shown = saveObj.hasChapter2Shown || false;
                     if (saveObj.settings) settings = { ...settings, ...saveObj.settings };
                     // 전압 최적화(prob) 누락 시 초기화 (기존 플레이어 호환성)
                     if (hardware.prob === undefined) hardware.prob = 0;
@@ -1141,16 +1466,54 @@
                 localStorage.removeItem('infCompSave');
                 // 초기화 후 컷신부터 보여주기 위해 새로고침 대신 초기 상태로 돌림
                 bits = new Decimal(0);
+                parts = new Decimal(0);
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
                 ranks = { spark: 0, impulse: 0 };
                 maxSpark = 0;
                 maxMkTier = 1;
                 consecutiveZeroTicks = 0;
+                hasDisassembled = false;
+                hasChapter2Shown = false;
                 localStorage.setItem('infCompFirstTime', 'true');
                 showCutscene('intro');
                 initGrid();
                 updateUI();
             }
+        }
+
+        window.disassemble = function () {
+            if (ranks.spark < 12) return;
+            const gained = calculatePendingParts();
+            if (confirm(`정말로 회로를 해체하시겠습니까?\n모든 진행 상황이 초기화되고 ${format(gained)} 부품을 획득합니다.`)) {
+                parts = parts.plus(gained);
+                hasDisassembled = true;
+
+                // 엔진 리셋
+                bits = new Decimal(0);
+                hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
+                ranks = { spark: 0, impulse: 0 };
+                // maxSpark는 유지할지 고민인데, 일단 0으로 초기화 (해체 후 새로운 발상 시작)
+                // 하지만 영구 해금된 기능이 있으므로 maxSpark는 유지하는 게 맞을 수도 있음.
+                // 여기서는 maxSpark도 리셋 (영구 해금은 maxSpark 기반이 아니라 영구 플래그 기반으로 가는게 안전)
+                maxSpark = 0;
+                maxMkTier = 1;
+                consecutiveZeroTicks = 0;
+
+                saveGame();
+                initGrid();
+                switchMainSubTab('core');
+                switchTab('main');
+                updateUI();
+
+                showCutscene('chapter2');
+            }
+        }
+
+        function calculatePendingParts() {
+            if (ranks.spark < 12) return new Decimal(0);
+            // 기본 부품: (발상 Lv-11) * (충동 Lv+1)
+            let base = new Decimal(ranks.spark - 11).times(ranks.impulse + 1);
+            return base.floor();
         }
 
         // 최대 가로 크기 계산 (기본 4, 발상 5+ 레벨마다 +1)
@@ -1216,9 +1579,24 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
             const tabMap = { 'main': 0, 'stats': 1, 'settings': 2 };
-            document.querySelectorAll('.tab-btn')[tabMap[tabName]].classList.add('active');
+            const btns = document.querySelectorAll('.tab-btn');
+            if (btns[tabMap[tabName]]) btns[tabMap[tabName]].classList.add('active');
+
             document.getElementById(`tab-${tabName}`).classList.add('active');
             if (tabName === 'stats') renderStats();
+        }
+
+        window.switchMainSubTab = function (subTabId) {
+            document.querySelectorAll('.main-sub-content').forEach(c => c.classList.add('hidden'));
+            document.querySelectorAll('#tab-main .sub-tab-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(`main-sub-${subTabId}`).classList.remove('hidden');
+            document.getElementById(`main-sub-btn-${subTabId}`).classList.add('active');
+
+            if (subTabId === 'disassemble') {
+                const pending = calculatePendingParts();
+                document.getElementById('pending-parts').innerText = format(pending);
+            }
         }
 
         window.switchCategory = function (catId) {
@@ -1401,6 +1779,12 @@
                 bits = new Decimal(0);
                 ranks.spark++;
                 maxSpark = Math.max(maxSpark, ranks.spark);
+
+                if (ranks.spark >= 12 && !hasChapter2Shown) {
+                    hasChapter2Shown = true;
+                    showCutscene('chapter2');
+                }
+
                 hardware = { rows: 1, cols: 1, speed: 0, prob: 0 };
                 consecutiveZeroTicks = 0;
                 addLog(`발상 Lv.${ranks.spark}: 사고 확장.`);
@@ -1440,7 +1824,10 @@
             }
             let delay = calculateDelay(hardware.speed);
             delay = Math.max(delay, 16);
-            bits = bits.plus(getTickYield(true));
+            const tickYield = getTickYield(true);
+            bits = bits.plus(tickYield);
+            bitHistory.push({ t: Date.now(), a: tickYield });
+
             updateUI();
             setTimeout(gameLoop, delay);
         }
@@ -1542,7 +1929,31 @@
         }
 
         function updateUI() {
-            document.getElementById('bits').innerText = format(bits.floor());
+            const formattedBits = format(bits.floor());
+            const formattedParts = format(parts.floor());
+
+            // 상시 아이콘 모드
+            document.getElementById('bits-icon-val').innerText = formattedBits;
+            document.getElementById('parts-icon-val').innerText = formattedParts;
+
+            // BPS 표시
+            const now = Date.now();
+            bitHistory = bitHistory.filter(h => now - h.t < 5000);
+            const totalGained = bitHistory.reduce((s, h) => s.plus(h.a), new Decimal(0));
+            const bps = totalGained.div(5);
+            document.getElementById('bits-bps').innerText = `(+${format(bps)}/s)`;
+
+            // 획득 예정 부품 표시
+            const pendingParts = calculatePendingParts();
+            document.getElementById('parts-pending').innerText = `(▲ +${format(pendingParts)})`;
+
+            // 부품 아이콘 표시 조건 (부품이 있거나 달성이Lv.12 이상)
+            if (parts.gt(0) || maxSpark >= 12) {
+                document.getElementById('parts-icon-container').classList.remove('hidden');
+            } else {
+                document.getElementById('parts-icon-container').classList.add('hidden');
+            }
+
             document.getElementById('lv-spark').innerText = ranks.spark;
             document.getElementById('lv-impulse').innerText = ranks.impulse;
 
@@ -1614,12 +2025,52 @@
             }
             updateBtn('btn-speed', getHWCost('speed'), speedEffect);
 
-            if (bits.gte(10)) document.getElementById('bit-container').classList.add('affordable');
-            else document.getElementById('bit-container').classList.remove('affordable');
+            if (bits.gt(0)) document.getElementById('bits-icon-container').classList.add('affordable');
+            else document.getElementById('bits-icon-container').classList.remove('affordable');
 
             updateMilestones('spark');
             updateMilestones('impulse');
             updateSettingsUI();
+
+            // 해체 서브탭 버튼 업데이트 및 강조
+            const disSubBtn = document.getElementById('main-sub-btn-disassemble');
+            if (maxSpark >= 12 || hasDisassembled) {
+                disSubBtn.classList.remove('hidden');
+                // 해체를 한 번도 하지 않았을 때 강조
+                if (!hasDisassembled) {
+                    disSubBtn.classList.add('highlight-tab');
+                } else {
+                    disSubBtn.classList.remove('highlight-tab');
+                }
+            } else {
+                disSubBtn.classList.add('hidden');
+            }
+
+            if (!document.getElementById('main-sub-disassemble').classList.contains('hidden')) {
+                // 초기 뷰 vs 업그레이드 뷰 토글
+                if (hasDisassembled) {
+                    document.getElementById('disassemble-initial-view').classList.add('hidden');
+                    document.getElementById('disassemble-upgrade-view').classList.remove('hidden');
+                } else {
+                    document.getElementById('disassemble-initial-view').classList.remove('hidden');
+                    document.getElementById('disassemble-upgrade-view').classList.add('hidden');
+                }
+
+                const pending = calculatePendingParts();
+                document.getElementById('pending-parts').innerText = format(pending);
+                const disBtn = document.getElementById('btn-disassemble');
+                const disReq = document.getElementById('disassemble-requirement');
+
+                if (ranks.spark >= 12) {
+                    disBtn.disabled = false;
+                    disBtn.classList.add('affordable');
+                    disReq.classList.add('hidden');
+                } else {
+                    disBtn.disabled = true;
+                    disBtn.classList.remove('affordable');
+                    disReq.classList.remove('hidden');
+                }
+            }
         }
 
         window.toggleSetting = function (key) {
@@ -1636,6 +2087,12 @@
                 offlineBtn.style.color = settings.offlineProgress ? "var(--neon)" : "#888";
                 offlineBtn.style.borderColor = settings.offlineProgress ? "var(--neon)" : "#444";
             }
+
+            // 스토리 리플레이 버튼 잠금 해제 체크
+            if (parts.gt(0) || maxSpark >= 12) {
+                document.getElementById('btn-replay-ch2').classList.remove('hidden');
+            }
+            // Chapter 3는 추후 조건 추가
         }
 
         function updateHWBtn(id, type) {
